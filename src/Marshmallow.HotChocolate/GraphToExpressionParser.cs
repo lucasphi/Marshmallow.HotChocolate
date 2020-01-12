@@ -62,7 +62,7 @@ namespace Marshmallow.HotChocolate
             var graphExpressions = new List<GraphExpression>();
 
             var typeProperties = type.GetProperties();
-            foreach (var selection in selections)
+            foreach (FieldNode selection in selections)
             {
                 GraphExpression graphExpression = CreateGraphExpression(typeProperties, selection, parameter, parentName);
                 if (graphExpression != null)
@@ -75,13 +75,12 @@ namespace Marshmallow.HotChocolate
 
         private GraphExpression CreateGraphExpression(
             PropertyInfo[] typeProperties,
-            ISelectionNode selection,
+            FieldNode fieldNode,
             ParameterExpression parameter,
             string parentName)
         {
-            var fieldNode = selection as FieldNode;
-            var name = fieldNode.Name.Value;
-            PropertyInfo prop = FindProperty(typeProperties, name);
+            var propertyLookup = new PropertyLookup();
+            PropertyInfo prop = propertyLookup.FindProperty(typeProperties, fieldNode.Name.Value);
 
             if (prop == null)
             {
@@ -166,25 +165,6 @@ namespace Marshmallow.HotChocolate
                 Property = new DynamicProperty(prop.Name, resultType),
                 Expression = newExpression
             };
-        }
-
-        private PropertyInfo FindProperty(PropertyInfo[] typeProperties, string name)
-        {
-            foreach (var prop in typeProperties)
-            {
-                if (prop.Name.ToLower() == name.ToLower())
-                {
-                    return prop;
-                }
-
-                var nameAttribute = prop.GetCustomAttributes(typeof(GraphQLNameAttribute), false).FirstOrDefault() as GraphQLNameAttribute;
-                if (nameAttribute != null && nameAttribute.Name == name)
-                {
-                    return prop;
-                }
-
-            }
-            return null;
         }
 
         private bool IsComplex(Type type)
