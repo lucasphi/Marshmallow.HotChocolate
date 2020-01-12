@@ -30,7 +30,6 @@ namespace Marshmallow.HotChocolate
                 {
                     return prop;
                 }
-
             }
             return null;
         }
