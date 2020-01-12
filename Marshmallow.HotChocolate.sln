@@ -4,7 +4,7 @@ VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Marshmallow.HotChocolate", "src\Marshmallow.HotChocolate\Marshmallow.HotChocolate.csproj", "{02AFC116-F006-4A2D-AEB6-0A43D065837D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marshmallow.Tests", "tests\Marshmallow.Tests\Marshmallow.Tests.csproj", "{3642063B-1DF7-45D9-8133-BD7F5E8BE53F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Marshmallow.Tests", "tests\Marshmallow.Tests\Marshmallow.Tests.csproj", "{3642063B-1DF7-45D9-8133-BD7F5E8BE53F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
