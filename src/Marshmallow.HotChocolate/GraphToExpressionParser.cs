@@ -1,5 +1,4 @@
-﻿using HotChocolate;
-using HotChocolate.Execution;
+﻿using HotChocolate.Execution;
 using HotChocolate.Language;
 using Marshmallow.HotChocolate.Helpers;
 using System;
@@ -8,7 +7,9 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("Marshmallow.Tests")]
 namespace Marshmallow.HotChocolate
 {
     class GraphToExpressionParser<TEntity>
@@ -61,43 +62,40 @@ namespace Marshmallow.HotChocolate
         {
             var graphExpressions = new List<GraphExpression>();
 
-            var typeProperties = type.GetProperties();
-            foreach (FieldNode selection in selections)
-            {
-                GraphExpression graphExpression = CreateGraphExpression(typeProperties, selection, parameter, parentName);
-                if (graphExpression != null)
+            var propertyLookup = new PropertyLookup(type);
+            foreach (FieldNode fieldNode in selections)
+            {   
+                PropertyInfo propertyInfo = propertyLookup.FindProperty(fieldNode.Name.Value);
+
+                if (propertyInfo != null)
                 {
-                    graphExpressions.Add(graphExpression);
+                    GraphExpression graphExpression = CreateGraphExpression(propertyInfo, fieldNode, parameter, parentName);
+                    if (graphExpression != null)
+                    {
+                        graphExpressions.Add(graphExpression);
+                    }
                 }
             }
             return graphExpressions;
         }
 
         private GraphExpression CreateGraphExpression(
-            PropertyInfo[] typeProperties,
+            PropertyInfo propertyInfo,
             FieldNode fieldNode,
             ParameterExpression parameter,
             string parentName)
         {
-            var propertyLookup = new PropertyLookup();
-            PropertyInfo prop = propertyLookup.FindProperty(typeProperties, fieldNode.Name.Value);
-
-            if (prop == null)
-            {
-                return null;
-            }
-
             var enumerableType = typeof(ICollection<>);
-            if (prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition().Equals(enumerableType))
+            if (propertyInfo.PropertyType.IsGenericType && propertyInfo.PropertyType.GetGenericTypeDefinition().Equals(enumerableType))
             {
-                return CreateCollectionGraphExpression(fieldNode, parameter, prop);
+                return CreateCollectionGraphExpression(fieldNode, parameter, propertyInfo);
             }
-            else if (IsComplex(prop.PropertyType))
+            else if (IsComplex(propertyInfo.PropertyType))
             {
-                return CreateComplexGraphExpression(fieldNode, parameter, prop); ;
+                return CreateComplexGraphExpression(fieldNode, parameter, propertyInfo);
             }
 
-            return CreateGraphExpression(parameter, prop, parentName);
+            return CreateGraphExpression(parameter, propertyInfo, parentName);
         }
 
         private static GraphExpression CreateGraphExpression(

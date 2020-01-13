@@ -1,14 +1,24 @@
 ﻿using HotChocolate;
+using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("Marshmallow.Tests")]
 namespace Marshmallow.HotChocolate
 {
     class PropertyLookup
     {
-        public PropertyInfo FindProperty(PropertyInfo[] typeProperties, string name)
+        private readonly PropertyInfo[] _properties;
+
+        public PropertyLookup(Type type)
         {
-            foreach (var prop in typeProperties)
+            _properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+        }
+
+        public PropertyInfo FindProperty(string name)
+        {
+            foreach (var prop in _properties)
             {
                 if (prop.Name.ToLower() == name.ToLower())
                 {
@@ -20,7 +30,6 @@ namespace Marshmallow.HotChocolate
                 {
                     return prop;
                 }
-
             }
             return null;
         }
