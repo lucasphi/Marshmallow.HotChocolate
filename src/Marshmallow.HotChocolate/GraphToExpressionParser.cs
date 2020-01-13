@@ -1,5 +1,4 @@
-﻿using HotChocolate;
-using HotChocolate.Execution;
+﻿using HotChocolate.Execution;
 using HotChocolate.Language;
 using Marshmallow.HotChocolate.Helpers;
 using System;
@@ -8,7 +7,9 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("Marshmallow.Tests")]
 namespace Marshmallow.HotChocolate
 {
     class GraphToExpressionParser<TEntity>
