@@ -25,9 +25,14 @@ namespace Marshmallow.HotChocolate
 
         public Expression<Func<TEntity, dynamic>> CreateExpression()
         {
-            var operation = _queryDocument.Document.Definitions.FirstOrDefault() as OperationDefinitionNode;
+            var operationDefinition = _queryDocument.Document.Definitions.FirstOrDefault() as OperationDefinitionNode;
 
-            var fieldNode = operation.SelectionSet.Selections.FirstOrDefault() as FieldNode;
+            if (operationDefinition.Operation != OperationType.Query)
+            {
+                throw new UnsupportedOperationException(operationDefinition.Operation);
+            }
+
+            var fieldNode = operationDefinition.SelectionSet.Selections.FirstOrDefault() as FieldNode;            
 
             var parameter = Expression.Parameter(typeof(TEntity), _expressionParameters.Next());
 
