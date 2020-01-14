@@ -2,6 +2,7 @@
 using HotChocolate.Execution;
 using HotChocolate.Language;
 using Marshmallow.HotChocolate;
+using Marshmallow.HotChocolate.Core;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

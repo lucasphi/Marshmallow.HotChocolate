@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using HotChocolate;
-using Marshmallow.HotChocolate;
+using Marshmallow.HotChocolate.Core;
 using Xunit;
 
 namespace Marshmallow.Tests

@@ -1,11 +1,8 @@
 ﻿using HotChocolate.Execution;
-using HotChocolate.Language;
+using Marshmallow.HotChocolate.Core;
 using Microsoft.AspNetCore.Http;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Marshmallow.HotChocolate
 {

@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Marshmallow.Tests")]
-namespace Marshmallow.HotChocolate
+namespace Marshmallow.HotChocolate.Core
 {
     class PropertyLookup
     {
