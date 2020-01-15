@@ -9,7 +9,7 @@ namespace Marshmallow.HotChocolate
     public class MissingQueryException : Exception
     {
         public MissingQueryException()
-            : base($"The method {nameof(IHttpContextAccessorExtensions.SetRequestQuery)} must be called before.")
+            : base($"The method {nameof(HttpContextExtensions.SetRequestQuery)} must be called before injecting {nameof(IQueryProjection)}.")
         { }
     }
 }

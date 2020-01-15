@@ -3,7 +3,7 @@ using HotChocolate;
 using Marshmallow.HotChocolate.Core;
 using Xunit;
 
-namespace Marshmallow.Tests
+namespace Marshmallow.Tests.Core
 {
     public class PropertyLoopTests
     {
