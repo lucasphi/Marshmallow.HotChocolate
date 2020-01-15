@@ -3,7 +3,7 @@ using Xunit;
 using Marshmallow.HotChocolate.Helpers;
 using FluentAssertions;
 
-namespace Marshmallow.Tests
+namespace Marshmallow.Tests.Helpers
 {
     public class ExpressionParametersTests
     {

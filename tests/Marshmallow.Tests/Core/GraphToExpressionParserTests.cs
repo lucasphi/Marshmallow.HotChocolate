@@ -3,13 +3,11 @@ using HotChocolate.Execution;
 using HotChocolate.Language;
 using Marshmallow.HotChocolate;
 using Marshmallow.HotChocolate.Core;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
-namespace Marshmallow.Tests
+namespace Marshmallow.Tests.Core
 {
     public class GraphToExpressionParserTests
     {
