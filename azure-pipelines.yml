@@ -1,4 +1,9 @@
-name: $(MajorVersion).$(MinorVersion)$(rev:.r)
+name: $(Major).$(Minor)$(rev:.r)
+
+trigger:
+  branches:
+    include:
+    - master
 
 pool:
   vmImage: 'windows-latest'
