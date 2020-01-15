@@ -1,5 +1,4 @@
-trigger:
-- master
+name: $(MajorVersion).$(MinorVersion)$(rev:.r)
 
 pool:
   vmImage: 'windows-latest'
@@ -22,10 +21,9 @@ steps:
   displayName: "dotnet pack"
   inputs:
     command: 'pack'
-    arguments: '--configuration $(buildConfiguration)'
     packagesToPack: 'src/**/*.csproj'
     nobuild: true
-    versioningScheme: 'off'
+    versioningScheme: 'byBuildNumber'
 
 - task: PublishBuildArtifacts@1
   inputs:
