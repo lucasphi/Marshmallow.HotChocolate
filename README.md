@@ -1,3 +1,5 @@
+<img src="Marshmallow.png" width="96">
+
 # Marshmallow.HotChocolate
 
 Marshmallow is a [Hot Chocolate](https://hotchocolate.io/) addon that creates projection expressions, that can be used with ORMs like Entity Framework, based on you GraphQL query.
