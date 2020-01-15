@@ -21,6 +21,7 @@ a => new {
 ```
 
 ### Getting Started
+Install the package using Nuget.org [Marshmallow Nuget](https://www.nuget.org/packages/Marshmallow.HotChocolate/)
 
 ### Using Marshmallow
 To start using Marshmallow, add a request interceptor to *Hot Chocolate* and register the QueryProjection interface.
