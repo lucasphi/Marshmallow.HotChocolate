@@ -37,7 +37,37 @@ namespace Marshmallow.Tests.Core
             result.Should().NotBeNull();
         }
 
-        public class TestClass
+        [Fact]
+        public void FindInheritedProperty()
+        {
+            var propertyLookup = new PropertyLookup(typeof(TestClass));
+
+            var result = propertyLookup.FindProperty("BaseProp");
+
+            result.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void SkipPrivateProperty()
+        {
+            var propertyLookup = new PropertyLookup(typeof(TestClass));
+
+            var result = propertyLookup.FindProperty("PrivateProp");
+
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public void SkipProtectedProperty()
+        {
+            var propertyLookup = new PropertyLookup(typeof(TestClass));
+
+            var result = propertyLookup.FindProperty("ProtectedProp");
+
+            result.Should().BeNull();
+        }
+
+        public class TestClass : BaseClass
         {
             public string Prop1 { get; set; }
 
@@ -45,6 +75,15 @@ namespace Marshmallow.Tests.Core
 
             [GraphQLName("Prop3")]
             public string Test { get; set; }
+
+            private string PrivateProp { get; set; }
+
+            protected int ProtectedProp { get; set; }
+        }
+
+        public class BaseClass
+        {
+            public string BaseProp { get; set; }
         }
     }
 }

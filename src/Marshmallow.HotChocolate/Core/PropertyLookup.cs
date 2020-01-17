@@ -13,7 +13,7 @@ namespace Marshmallow.HotChocolate.Core
 
         public PropertyLookup(Type type)
         {
-            _properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            _properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         }
 
         public PropertyInfo FindProperty(string name)
