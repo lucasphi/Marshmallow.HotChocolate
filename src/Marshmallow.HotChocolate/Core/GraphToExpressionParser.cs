@@ -27,7 +27,7 @@ namespace Marshmallow.HotChocolate.Core
         {
             var operationDefinition = _queryDocument.Document.Definitions.FirstOrDefault() as OperationDefinitionNode;
 
-            if (operationDefinition.Operation != OperationType.Query)
+            if (operationDefinition.Operation == OperationType.Subscription)
             {
                 throw new UnsupportedOperationException(operationDefinition.Operation);
             }

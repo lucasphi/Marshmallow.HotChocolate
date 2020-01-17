@@ -12,7 +12,7 @@ namespace Marshmallow.Tests.Core
     public class GraphToExpressionParserTests
     {
         [Fact]
-        public void CreateExpression()
+        public void CreateExpressionForQuery()
         {
             DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp intProp dateProp child { strProp } sameClass { strProp } children { strProp } } }");
 
@@ -28,9 +28,25 @@ namespace Marshmallow.Tests.Core
         }
 
         [Fact]
+        public void CreateExpressionForMutation()
+        {
+            DocumentNode document = Utf8GraphQLParser.Parse("mutation { updateClient(strProp: \"test\") { strProp intProp dateProp child { strProp } sameClass { strProp } children { strProp } } }");
+
+            var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
+
+            var queryRequest = queryBuilder.Create();
+
+            var parser = new GraphToExpressionParser<TestClass>(queryRequest.Query as QueryDocument);
+
+            var expression = parser.CreateExpression();
+
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp, Child = new {StrProp = a.Child.StrProp}, SameClass = new {StrProp = a.SameClass.StrProp}, Children = a.Children.Select(b => new {StrProp = b.StrProp})}");
+        }
+
+        [Fact]
         public void UnsupportedOperation()
         {
-            DocumentNode document = Utf8GraphQLParser.Parse("mutation { testMutation { } }");
+            DocumentNode document = Utf8GraphQLParser.Parse("subscription { onReview(episode: NEWHOPE) { stars comment } }");
 
             var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
 
@@ -40,7 +56,7 @@ namespace Marshmallow.Tests.Core
 
             Exception exception = Assert.Throws<UnsupportedOperationException>(() => parser.CreateExpression());
             exception.Should().BeOfType(typeof(UnsupportedOperationException));
-            exception.Message.Should().Be("There is no support for the operation Mutation");
+            exception.Message.Should().Be("There is no support for the operation Subscription");
         }
 
         public class TestClass
