@@ -3,11 +3,8 @@ using HotChocolate.Execution;
 using Marshmallow.HotChocolate;
 using Marshmallow.HotChocolate.Core;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace Marshmallow.Tests.Core
@@ -33,24 +30,7 @@ namespace Marshmallow.Tests.Core
         }
 
         [Fact]
-        public void CreateExpressionWithoutCache()
-        {
-            var httpContext = new DefaultHttpContext();
-            httpContext.Items.Add("graph", QueryRequestBuilder.New().SetQuery("{}").Create());
-
-            _httpContextAcessorMock.Setup(f => f.HttpContext).Returns(httpContext);
-
-            var queryProjection = new QueryProjectionTest(_httpContextAcessorMock.Object);
-
-            queryProjection.CreateExpression<object>();
-
-            queryProjection.Visited.Should().BeTrue();
-
-            object cached;
-        }
-
-        [Fact]
-        public void CreateExpressionNotCached()
+        public void CreateExpression()
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Items.Add("graph", QueryRequestBuilder.New().SetQuery("{}").Create());

@@ -1,4 +1,4 @@
-name: $(Major).$(Minor)$(rev:.r)
+name: $(BuildID)
 
 trigger:
   branches:
@@ -28,7 +28,7 @@ steps:
     command: 'pack'
     packagesToPack: 'src/**/*.csproj'
     nobuild: true
-    versioningScheme: 'byBuildNumber'
+    versioningScheme: 'off'
 
 - task: PublishBuildArtifacts@1
   inputs:
