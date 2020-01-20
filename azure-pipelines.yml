@@ -1,4 +1,4 @@
-name: __$(BuildID)__
+name: $(BuildID)
 
 trigger:
   branches:
