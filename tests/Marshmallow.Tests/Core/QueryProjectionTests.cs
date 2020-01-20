@@ -33,24 +33,7 @@ namespace Marshmallow.Tests.Core
         }
 
         [Fact]
-        public void CreateExpressionWithoutCache()
-        {
-            var httpContext = new DefaultHttpContext();
-            httpContext.Items.Add("graph", QueryRequestBuilder.New().SetQuery("{}").Create());
-
-            _httpContextAcessorMock.Setup(f => f.HttpContext).Returns(httpContext);
-
-            var queryProjection = new QueryProjectionTest(_httpContextAcessorMock.Object);
-
-            queryProjection.CreateExpression<object>();
-
-            queryProjection.Visited.Should().BeTrue();
-
-            object cached;
-        }
-
-        [Fact]
-        public void CreateExpressionNotCached()
+        public void CreateExpression()
         {
             var httpContext = new DefaultHttpContext();
             httpContext.Items.Add("graph", QueryRequestBuilder.New().SetQuery("{}").Create());
