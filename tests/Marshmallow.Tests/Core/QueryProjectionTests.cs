@@ -3,11 +3,8 @@ using HotChocolate.Execution;
 using Marshmallow.HotChocolate;
 using Marshmallow.HotChocolate.Core;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace Marshmallow.Tests.Core

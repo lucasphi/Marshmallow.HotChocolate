@@ -1,6 +1,5 @@
 ﻿using HotChocolate.Execution;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
