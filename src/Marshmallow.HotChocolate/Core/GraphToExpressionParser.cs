@@ -90,12 +90,11 @@ namespace Marshmallow.HotChocolate.Core
             ParameterExpression parameter,
             string parentName)
         {
-            var enumerableType = typeof(ICollection<>);
-            if (propertyInfo.PropertyType.IsGenericType && propertyInfo.PropertyType.GetGenericTypeDefinition().Equals(enumerableType))
+            if (propertyInfo.PropertyType.IsGenericCollection())
             {
                 return CreateCollectionGraphExpression(fieldNode, parameter, propertyInfo);
             }
-            else if (IsComplex(propertyInfo.PropertyType))
+            else if (propertyInfo.PropertyType.IsComplex())
             {
                 return CreateComplexGraphExpression(fieldNode, parameter, propertyInfo);
             }
@@ -168,16 +167,6 @@ namespace Marshmallow.HotChocolate.Core
                 Property = new DynamicProperty(prop.Name, resultType),
                 Expression = newExpression
             };
-        }
-
-        private bool IsComplex(Type type)
-        {
-            return !type.IsPrimitive
-                && !type.IsGenericType
-                && !type.IsEnum
-                && type != typeof(string)
-                && type != typeof(DateTime)
-                && type != typeof(Guid);
         }
     }
 }
