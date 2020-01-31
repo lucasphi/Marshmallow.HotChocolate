@@ -1,5 +1,6 @@
 ﻿using HotChocolate.Execution;
 using HotChocolate.Language;
+using Marshmallow.HotChocolate.Core.Attributes;
 using Marshmallow.HotChocolate.Helpers;
 using System;
 using System.Collections.Generic;
@@ -66,22 +67,55 @@ namespace Marshmallow.HotChocolate.Core
             string parentName = null)
         {
             var graphExpressions = new List<GraphExpression>();
-
+            var joinProperties = new Dictionary<JoinAttribute, PropertyInfo>();
             var propertyLookup = new PropertyLookup(type);
             foreach (FieldNode fieldNode in selections)
             {   
                 PropertyInfo propertyInfo = propertyLookup.FindProperty(fieldNode.Name.Value);
-
                 if (propertyInfo != null)
                 {
-                    GraphExpression graphExpression = CreateGraphExpression(propertyInfo, fieldNode, parameter, parentName);
-                    if (graphExpression != null)
+                    var joinAttr = propertyInfo.GetCustomAttribute<JoinAttribute>();
+                    if (joinAttr != null)
                     {
+                        joinProperties.Add(joinAttr, propertyInfo);
+                    }
+                    else
+                    {
+                        GraphExpression graphExpression = CreateGraphExpression(propertyInfo, fieldNode, parameter, parentName);
                         graphExpressions.Add(graphExpression);
                     }
                 }
             }
+
+            var joinGroups = joinProperties.GroupBy(f => f.Key.TableName);
+            foreach (var joinGroup in joinGroups)
+            {
+                graphExpressions.Add(CreateJoinGraphExpression(parameter, joinGroup));
+            }
             return graphExpressions;
+        }
+
+        private GraphExpression CreateJoinGraphExpression(ParameterExpression parameter, IGrouping<string, KeyValuePair<JoinAttribute, PropertyInfo>> joinGroup)
+        {
+            var dynamicProperties = joinGroup.Select(f => new DynamicProperty(f.Key.ColumnName, f.Value.PropertyType)).ToList();
+            var innerType = DynamicClassFactory.CreateType(dynamicProperties, false);
+
+            var resultType = DynamicClassFactory.CreateType(new List<DynamicProperty>()
+                {
+                    new DynamicProperty(joinGroup.Key, innerType)
+                }, false);
+            var bindings = joinGroup.Select(p =>
+            {
+                var propExp = Expression.PropertyOrField(parameter, p.Key.TableName);
+                return Expression.Bind(resultType.GetProperty(p.Key.ColumnName),
+                     Expression.PropertyOrField(propExp, p.Key.ColumnName));
+            });
+            var newExpression = Expression.MemberInit(Expression.New(resultType), bindings);
+            return new GraphExpression()
+            {
+                Property = new DynamicProperty("j1", typeof(object)),
+                Expression = newExpression
+            };
         }
 
         private GraphExpression CreateGraphExpression(

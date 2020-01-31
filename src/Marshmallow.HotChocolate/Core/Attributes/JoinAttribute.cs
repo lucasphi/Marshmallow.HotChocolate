@@ -2,6 +2,7 @@
 
 namespace Marshmallow.HotChocolate.Core.Attributes
 {
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class JoinAttribute : Attribute
     {
         public string ColumnName { get; private set; }

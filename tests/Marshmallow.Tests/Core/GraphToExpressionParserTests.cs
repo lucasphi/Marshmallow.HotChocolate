@@ -73,7 +73,7 @@ namespace Marshmallow.Tests.Core
 
             var expression = parser.CreateExpression();
 
-            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, j1 = new {StrProp = a.child.innerProp, IntInnerProp = a.child.intInnerProp} }");
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, j1 = new {InnerProp = a.child.column1, IntInnerProp = a.child.column2} }");
         }
 
         public class TestClass
@@ -105,10 +105,10 @@ namespace Marshmallow.Tests.Core
         {
             public string StrProp { get; set; }
 
-            [Join("innerProp", "child")]
+            [Join("column1", "child")]
             public string InnerProp { get; set; }
 
-            [Join("intInnerProp", "child")]
+            [Join("column2", "child")]
             public int IntInnerProp { get; set; }
         }
     }
