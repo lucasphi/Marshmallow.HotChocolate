@@ -3,6 +3,7 @@ using HotChocolate.Execution;
 using HotChocolate.Language;
 using Marshmallow.HotChocolate;
 using Marshmallow.HotChocolate.Core;
+using Marshmallow.HotChocolate.Core.Attributes;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -59,6 +60,22 @@ namespace Marshmallow.Tests.Core
             exception.Message.Should().Be("There is no support for the operation Subscription");
         }
 
+        [Fact]
+        public void ClassConvertion()
+        {
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp innerProp intInnerProp } }");
+
+            var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
+
+            var queryRequest = queryBuilder.Create();
+
+            var parser = new GraphToExpressionParser<AttrPropertyClass>(queryRequest.Query as QueryDocument);
+
+            var expression = parser.CreateExpression();
+
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, j1 = new {StrProp = a.child.innerProp, IntInnerProp = a.child.intInnerProp} }");
+        }
+
         public class TestClass
         {
             public string StrProp { get; set; }
@@ -82,6 +99,17 @@ namespace Marshmallow.Tests.Core
         public class ListClass
         {
             public string StrProp { get; set; }
+        }
+
+        public class AttrPropertyClass
+        {
+            public string StrProp { get; set; }
+
+            [Join("innerProp", "child")]
+            public string InnerProp { get; set; }
+
+            [Join("intInnerProp", "child")]
+            public int IntInnerProp { get; set; }
         }
     }
 }
