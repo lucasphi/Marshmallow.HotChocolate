@@ -109,22 +109,18 @@ namespace Marshmallow.HotChocolate.Core
         private GraphExpression CreateJoinGraphExpression(ParameterExpression parameter, IGrouping<string, GraphScheme> joinGroup)
         {
             var dynamicProperties = joinGroup.Select(f => new DynamicProperty(f.SchemeProperty.Name, f.SchemeProperty.PropertyType)).ToList();
-            var innerType = DynamicClassFactory.CreateType(dynamicProperties, false);
+            var resultType = DynamicClassFactory.CreateType(dynamicProperties, false);
 
-            var resultType = DynamicClassFactory.CreateType(new List<DynamicProperty>()
-                {
-                    new DynamicProperty(joinGroup.Key, innerType)
-                }, false);
             var bindings = joinGroup.Select(p =>
             {
                 var propExp = Expression.PropertyOrField(parameter, p.Property.Name);
-                return Expression.Bind(innerType.GetProperty(p.SchemeProperty.Name),
+                return Expression.Bind(resultType.GetProperty(p.SchemeProperty.Name),
                      Expression.PropertyOrField(propExp, p.SchemeProperty.Name));
             });
-            var newExpression = Expression.MemberInit(Expression.New(innerType), bindings);
+            var newExpression = Expression.MemberInit(Expression.New(resultType), bindings);
             return new GraphExpression()
             {
-                Property = new DynamicProperty("j1", typeof(object)),
+                Property = new DynamicProperty(joinGroup.First().Property.Name, typeof(object)),
                 Expression = newExpression
             };
         }

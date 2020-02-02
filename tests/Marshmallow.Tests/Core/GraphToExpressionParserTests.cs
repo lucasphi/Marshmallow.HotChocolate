@@ -89,7 +89,7 @@ namespace Marshmallow.Tests.Core
 
             var expression = parser.CreateExpression<AttrScheme>();
 
-            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, j1 = new {InnerProp = a.Child.InnerProp, IntInnerProp = a.Child.IntInnerProp}}");
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, Child = new {InnerProp = a.Child.InnerProp, IntInnerProp = a.Child.IntInnerProp}}");
         }
 
         public class TestClass
