@@ -1,9 +1,11 @@
 ﻿using FluentAssertions;
 using HotChocolate;
-using Marshmallow.HotChocolate.Core;
+using Marshmallow.HotChocolate.Helpers;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
-namespace Marshmallow.Tests.Core
+namespace Marshmallow.Tests.Helpers
 {
     public class PropertyLoopTests
     {
@@ -65,6 +67,20 @@ namespace Marshmallow.Tests.Core
             var result = propertyLookup.FindProperty("ProtectedProp");
 
             result.Should().BeNull();
+        }
+
+        [Fact]
+        public void ListAllProperties()
+        {
+            var propertyLookup = new PropertyLookup(typeof(TestClass));
+
+            var result = propertyLookup.GetAllProperties();
+
+            result.Should().HaveCount(4);
+            result.Select(f => f.Name).Should().BeEquivalentTo(new List<string>()
+            {
+                "Prop1", "Prop2", "Test", "BaseProp"
+            });
         }
 
         public class TestClass : BaseClass

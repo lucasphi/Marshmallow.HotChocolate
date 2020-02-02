@@ -13,6 +13,22 @@ namespace Marshmallow.Tests.Core
     public class GraphToExpressionParserTests
     {
         [Fact]
+        public void CreateBasicExpression()
+        {
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp intProp dateProp } }");
+
+            var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
+
+            var queryRequest = queryBuilder.Create();
+
+            var parser = new GraphToExpressionParser<TestClass>(queryRequest.Query as QueryDocument);
+
+            var expression = parser.CreateExpression();
+
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp}");
+        }
+
+        [Fact]
         public void CreateExpressionForQuery()
         {
             DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp intProp dateProp child { strProp } sameClass { strProp } children { strProp } } }");
@@ -69,11 +85,11 @@ namespace Marshmallow.Tests.Core
 
             var queryRequest = queryBuilder.Create();
 
-            var parser = new GraphToExpressionParser<AttrPropertyClass>(queryRequest.Query as QueryDocument);
+            var parser = new GraphToExpressionParser<AttrData>(queryRequest.Query as QueryDocument);
 
-            var expression = parser.CreateExpression();
+            var expression = parser.CreateExpression<AttrScheme>();
 
-            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, j1 = new {InnerProp = a.child.column1, IntInnerProp = a.child.column2} }");
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, j1 = new {InnerProp = a.Child.InnerProp, IntInnerProp = a.Child.IntInnerProp}}");
         }
 
         public class TestClass
@@ -101,14 +117,28 @@ namespace Marshmallow.Tests.Core
             public string StrProp { get; set; }
         }
 
-        public class AttrPropertyClass
+        public class AttrScheme
         {
             public string StrProp { get; set; }
 
-            [Join("column1", "child")]
+            [Join(nameof(AttrData.Child))]
             public string InnerProp { get; set; }
 
-            [Join("column2", "child")]
+            [Join(nameof(AttrData.Child))]
+            public int IntInnerProp { get; set; }
+        }
+
+        public class AttrData
+        {
+            public string StrProp { get; set; }
+
+            public AttrChildData Child { get; set; }
+        }
+
+        public class AttrChildData
+        {
+            public string InnerProp { get; set; }
+
             public int IntInnerProp { get; set; }
         }
     }
