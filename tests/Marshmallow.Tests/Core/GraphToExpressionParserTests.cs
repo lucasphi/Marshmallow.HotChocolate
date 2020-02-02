@@ -3,9 +3,7 @@ using HotChocolate.Execution;
 using HotChocolate.Language;
 using Marshmallow.HotChocolate;
 using Marshmallow.HotChocolate.Core;
-using Marshmallow.HotChocolate.Core.Attributes;
 using System;
-using System.Collections.Generic;
 using Xunit;
 
 namespace Marshmallow.Tests.Core
@@ -90,56 +88,6 @@ namespace Marshmallow.Tests.Core
             var expression = parser.CreateExpression<AttrScheme>();
 
             expression.ToString().Should().Be("a => new {StrProp = a.StrProp, Child = new {InnerProp = a.Child.InnerProp, IntInnerProp = a.Child.IntInnerProp}}");
-        }
-
-        public class TestClass
-        {
-            public string StrProp { get; set; }
-
-            public int IntProp { get; set; }
-
-            public DateTime DateProp { get; set; }
-
-            public OtherClass Child { get; set; }
-
-            public TestClass SameClass { get; set; }
-
-            public ICollection<ListClass> Children { get; set; }
-        }
-
-        public class OtherClass
-        {
-            public string StrProp { get; set; }
-        }
-
-        public class ListClass
-        {
-            public string StrProp { get; set; }
-        }
-
-        public class AttrScheme
-        {
-            public string StrProp { get; set; }
-
-            [Join(nameof(AttrData.Child))]
-            public string InnerProp { get; set; }
-
-            [Join(nameof(AttrData.Child))]
-            public int IntInnerProp { get; set; }
-        }
-
-        public class AttrData
-        {
-            public string StrProp { get; set; }
-
-            public AttrChildData Child { get; set; }
-        }
-
-        public class AttrChildData
-        {
-            public string InnerProp { get; set; }
-
-            public int IntInnerProp { get; set; }
         }
     }
 }
