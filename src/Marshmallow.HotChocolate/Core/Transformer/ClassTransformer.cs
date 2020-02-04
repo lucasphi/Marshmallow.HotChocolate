@@ -1,4 +1,5 @@
-﻿using Marshmallow.HotChocolate.Helpers;
+﻿using Marshmallow.HotChocolate.Core.Attributes;
+using Marshmallow.HotChocolate.Helpers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -72,10 +73,24 @@ namespace Marshmallow.HotChocolate.Core.Transformer
 
             foreach (var targetMember in targetMembers)
             {
-                var sourceMember = sourceType.GetProperty(targetMember.Name, BindingFlags.Public | BindingFlags.Instance);
+                object sourceValue = source;
+                PropertyInfo sourceMember;
+
+                var joinAttr = targetMember.GetCustomAttribute<JoinAttribute>();
+                if (joinAttr != null)
+                {
+                    var innerProperty = sourceType.GetProperty(joinAttr.PropertyName);
+                    sourceMember = innerProperty.PropertyType.GetProperty(targetMember.Name);
+                    sourceValue = innerProperty.GetValue(source);
+                }
+                else
+                {
+                    sourceMember = sourceType.GetProperty(targetMember.Name);                    
+                }
+
                 if (sourceMember != null)
                 {
-                    SetValue(source, target, sourceMember, targetMember);
+                    SetValue(sourceValue, target, sourceMember, targetMember);
                 }
             }
         }

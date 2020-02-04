@@ -71,5 +71,29 @@ namespace Marshmallow.Tests.Core
                 }
             });
         }
+
+        [Fact]
+        public void MapObjectWithAttribute()
+        {
+            var transformer = new ClassTransformer();
+
+            var testObj = new
+            {
+                StrProp = "Hello",
+                Child = new
+                {
+                    InnerProp = "Val",
+                    IntInnerProp = 1,
+                }
+            };
+            var result = transformer.Transform<AttrScheme>(testObj);
+
+            result.Should().BeEquivalentTo(new AttrScheme()
+            {
+                StrProp = "Hello",
+                InnerProp = "Val",
+                IntInnerProp = 1,
+            });
+        }
     }
 }
