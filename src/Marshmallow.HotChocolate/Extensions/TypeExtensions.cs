@@ -26,5 +26,21 @@ namespace Marshmallow.HotChocolate
 
             return false;
         }
+
+        public static bool IsPrimitive(this Type type)
+        {
+            if (type.IsPrimitive || type.IsValueType)
+                return true;
+            
+            var underlyingType = Nullable.GetUnderlyingType(type);
+            if (underlyingType != null)
+            {
+                type = underlyingType;
+            }
+
+            return (type == typeof(string) ||
+                    type == typeof(DateTime) ||
+                    type == typeof(decimal));
+        }
     }
 }
