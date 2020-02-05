@@ -11,15 +11,21 @@ GraphQL query
 {
    getClients {
       name
-      age
+      age,
+      contacts {
+          number
+      }
    }
 }
 ```
 Lambda expression
 ```
 a => new {
-    a.Name,
-    a.Age
+    Name = a.Name,
+    Age = a.Age,
+    Contacts => a.Contacts.Select(b => new {
+      Number = b.Number
+    }
 }
 ```
 
@@ -63,9 +69,14 @@ public class ClientsQuery
     [GraphQLName("getClients")]
     public List<Client> GetClients()
     {
+        // Creates the expression
         Expression<Func<Client, object>> projection = _queryProjection.CreateExpression<Client>();
+        
+        // Run the expression through your ORM
         var result = _clientsRepository.Search(projection);
-        return result;
+        
+        // Convert the result
+        return _queryProjection.CreateScheme<List<Client>>(result);
     }
 }
 ```
