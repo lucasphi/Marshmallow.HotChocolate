@@ -21,7 +21,7 @@ namespace Marshmallow.Tests
 
     public class OtherClass
     {
-        public string StrProp { get; set; }
+        public string OtherStrProp { get; set; }
     }
 
     public class ListClass

@@ -45,7 +45,7 @@ namespace Marshmallow.HotChocolate.Core
 
             var parameter = Expression.Parameter(typeof(TEntity), _expressionParameters.Next());
 
-            var newExpression = CreateNewExpression(fieldNode, typeof(TEntity), parameter);
+            var newExpression = CreateNewExpression(fieldNode, typeof(TEntity), _schemaType, parameter);
 
             return Expression.Lambda<Func<TEntity, dynamic>>(newExpression, parameter);
         }
@@ -53,11 +53,12 @@ namespace Marshmallow.HotChocolate.Core
         private MemberInitExpression CreateNewExpression(
             FieldNode fieldNode,
             Type type,
+            Type schemaType,
             ParameterExpression parameter)
         {
             var selections = fieldNode.SelectionSet.Selections;
 
-            List<GraphExpression> graphExpressions = CreateGraphExpressionList(selections, type, parameter);
+            List<GraphExpression> graphExpressions = CreateGraphExpressionList(selections, type, schemaType, parameter);
 
             var resultType = DynamicClassFactory.CreateType(graphExpressions.Select(f => f.Property).ToList(), false);
             _typeCollection.AddIfNotExists(type.FullName, resultType);
@@ -71,13 +72,14 @@ namespace Marshmallow.HotChocolate.Core
         private List<GraphExpression> CreateGraphExpressionList(
             IReadOnlyList<ISelectionNode> selections,
             Type type,
+            Type schemaType,
             ParameterExpression parameter,
             string parentName = null)
         {
             var graphExpressions = new List<GraphExpression>();
             var joinProperties = new List<GraphScheme>();
             var propertyLookup = new PropertyLookup(type);
-            var schemaLookup = new PropertyLookup(_schemaType);
+            var schemaLookup = new PropertyLookup(schemaType);
             foreach (FieldNode fieldNode in selections)
             {
                 PropertyInfo schemaInfo = schemaLookup.FindProperty(fieldNode.Name.Value);
@@ -92,7 +94,7 @@ namespace Marshmallow.HotChocolate.Core
                     else
                     {
                         PropertyInfo propertyInfo = propertyLookup.FindProperty(fieldNode.Name.Value);
-                        GraphExpression graphExpression = CreateGraphExpression(propertyInfo, fieldNode, parameter, parentName);
+                        GraphExpression graphExpression = CreateGraphExpression(propertyInfo, fieldNode, parameter, schemaType, parentName);
                         graphExpressions.Add(graphExpression);
                     }
                 }
@@ -129,15 +131,16 @@ namespace Marshmallow.HotChocolate.Core
             PropertyInfo propertyInfo,
             FieldNode fieldNode,
             ParameterExpression parameter,
+            Type schemaType,
             string parentName)
         {
             if (propertyInfo.PropertyType.IsGenericCollection())
             {
-                return CreateCollectionGraphExpression(fieldNode, parameter, propertyInfo);
+                return CreateCollectionGraphExpression(fieldNode, parameter, propertyInfo, schemaType);
             }
             else if (propertyInfo.PropertyType.IsComplex())
             {
-                return CreateComplexGraphExpression(fieldNode, parameter, propertyInfo);
+                return CreateComplexGraphExpression(fieldNode, parameter, propertyInfo, schemaType);
             }
 
             return CreateGraphExpression(parameter, propertyInfo, parentName);
@@ -168,12 +171,14 @@ namespace Marshmallow.HotChocolate.Core
         private GraphExpression CreateCollectionGraphExpression(
             FieldNode fieldNode,
             ParameterExpression parameter,
-            PropertyInfo prop)
+            PropertyInfo prop,
+            Type schemaType)
         {
             var genericType = prop.PropertyType.GetGenericArguments().First();
             var innerParameter = Expression.Parameter(genericType, _expressionParameters.Next());
+            var childSchemaType = schemaType.GetProperty(prop.Name).PropertyType.GetGenericArguments().First();
 
-            var innerExpression = CreateNewExpression(fieldNode, genericType, innerParameter);
+            var innerExpression = CreateNewExpression(fieldNode, genericType, childSchemaType, innerParameter);
 
             var graphExpression = new GraphExpression
             {
@@ -191,9 +196,17 @@ namespace Marshmallow.HotChocolate.Core
         private GraphExpression CreateComplexGraphExpression(
             FieldNode fieldNode,
             ParameterExpression parameter,
-            PropertyInfo prop)
+            PropertyInfo prop,
+            Type schemaType)
         {
-            List<GraphExpression> graphExpressions = CreateGraphExpressionList(fieldNode.SelectionSet.Selections, prop.PropertyType, parameter, prop.Name);
+            var childSchemaType = schemaType.GetProperty(prop.Name).PropertyType;
+
+            List<GraphExpression> graphExpressions = CreateGraphExpressionList(
+                fieldNode.SelectionSet.Selections,
+                prop.PropertyType,
+                childSchemaType,
+                parameter,
+                prop.Name);
 
             var resultType = DynamicClassFactory.CreateType(graphExpressions.Select(f => f.Property).ToList(), false);
             _typeCollection.AddIfNotExists(prop.PropertyType.FullName, resultType);

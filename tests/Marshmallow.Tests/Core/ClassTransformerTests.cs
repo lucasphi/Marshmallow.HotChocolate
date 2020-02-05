@@ -23,7 +23,7 @@ namespace Marshmallow.Tests.Core
                 DateProp = new DateTime(2000, 01, 01),
                 Child = new
                 {
-                    StrProp = "Inner"
+                    OtherStrProp = "Inner"
                 }
             };
             var result = transformer.Transform<TestClass>(testObj);
@@ -35,7 +35,7 @@ namespace Marshmallow.Tests.Core
                 DateProp = new DateTime(2000, 01, 01),
                 Child = new OtherClass
                 {
-                    StrProp = "Inner"
+                    OtherStrProp = "Inner"
                 }
             });
         }

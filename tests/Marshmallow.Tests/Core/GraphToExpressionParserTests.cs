@@ -29,7 +29,7 @@ namespace Marshmallow.Tests.Core
         [Fact]
         public void CreateExpressionForQuery()
         {
-            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp intProp dateProp child { strProp } sameClass { strProp } children { listStrProp } } }");
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp intProp dateProp child { otherStrProp } sameClass { strProp } children { listStrProp } } }");
 
             var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
 
@@ -39,13 +39,13 @@ namespace Marshmallow.Tests.Core
 
             var expression = parser.CreateExpression();
 
-            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp, Child = new {StrProp = a.Child.StrProp}, SameClass = new {StrProp = a.SameClass.StrProp}, Children = a.Children.Select(b => new {StrProp = b.ListStrProp})}");
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp, Child = new {OtherStrProp = a.Child.OtherStrProp}, SameClass = new {StrProp = a.SameClass.StrProp}, Children = a.Children.Select(b => new {ListStrProp = b.ListStrProp})}");
         }
 
         [Fact]
         public void CreateExpressionForMutation()
         {
-            DocumentNode document = Utf8GraphQLParser.Parse("mutation { updateClient(strProp: \"test\") { strProp intProp dateProp child { strProp } sameClass { strProp } children { listStrProp } } }");
+            DocumentNode document = Utf8GraphQLParser.Parse("mutation { updateClient(strProp: \"test\") { strProp intProp dateProp child { otherStrProp } sameClass { strProp } children { listStrProp } } }");
 
             var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
 
@@ -55,7 +55,7 @@ namespace Marshmallow.Tests.Core
 
             var expression = parser.CreateExpression();
 
-            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp, Child = new {StrProp = a.Child.StrProp}, SameClass = new {StrProp = a.SameClass.StrProp}, Children = a.Children.Select(b => new {StrProp = b.ListStrProp})}");
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp, Child = new {OtherStrProp = a.Child.OtherStrProp}, SameClass = new {StrProp = a.SameClass.StrProp}, Children = a.Children.Select(b => new {ListStrProp = b.ListStrProp})}");
         }
 
         [Fact]
