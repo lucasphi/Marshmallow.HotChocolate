@@ -26,7 +26,7 @@ namespace Marshmallow.Tests
 
     public class ListClass
     {
-        public string StrProp { get; set; }
+        public string ListStrProp { get; set; }
     }
 
     public class AttrScheme
