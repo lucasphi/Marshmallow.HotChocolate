@@ -85,7 +85,7 @@ namespace Marshmallow.Tests.Core
 
             var parser = new GraphToExpressionParser<AttrData>(queryRequest.Query as QueryDocument);
 
-            var expression = parser.CreateExpression<AttrScheme>();
+            var expression = parser.CreateExpression<AttrSchema>();
 
             expression.ToString().Should().Be("a => new {StrProp = a.StrProp, Child = new {InnerProp = a.Child.InnerProp, IntInnerProp = a.Child.IntInnerProp}}");
         }

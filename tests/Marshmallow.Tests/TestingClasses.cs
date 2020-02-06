@@ -29,7 +29,7 @@ namespace Marshmallow.Tests
         public string ListStrProp { get; set; }
     }
 
-    public class AttrScheme
+    public class AttrSchema
     {
         public string StrProp { get; set; }
 

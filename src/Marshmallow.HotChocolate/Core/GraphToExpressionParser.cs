@@ -69,7 +69,7 @@ namespace Marshmallow.HotChocolate.Core
             string parentName = null)
         {
             var graphExpressions = new List<GraphExpression>();
-            var joinProperties = new List<GraphScheme>();
+            var joinProperties = new List<GraphSchema>();
             var propertyLookup = new PropertyLookup(type);
             var schemaLookup = new PropertyLookup(schemaType);
             foreach (FieldNode fieldNode in selections)
@@ -81,7 +81,7 @@ namespace Marshmallow.HotChocolate.Core
                     if (joinAttr != null)
                     {
                         PropertyInfo propertyInfo = propertyLookup.FindProperty(joinAttr.PropertyName);
-                        joinProperties.Add(new GraphScheme(propertyInfo, schemaInfo));
+                        joinProperties.Add(new GraphSchema(propertyInfo, schemaInfo));
                     }
                     else
                     {
@@ -100,16 +100,16 @@ namespace Marshmallow.HotChocolate.Core
             return graphExpressions;
         }
 
-        private GraphExpression CreateJoinGraphExpression(ParameterExpression parameter, IGrouping<string, GraphScheme> joinGroup)
+        private GraphExpression CreateJoinGraphExpression(ParameterExpression parameter, IGrouping<string, GraphSchema> joinGroup)
         {
-            var dynamicProperties = joinGroup.Select(f => new DynamicProperty(f.SchemeProperty.Name, f.SchemeProperty.PropertyType)).ToList();
+            var dynamicProperties = joinGroup.Select(f => new DynamicProperty(f.SchemaProperty.Name, f.SchemaProperty.PropertyType)).ToList();
             var resultType = DynamicClassFactory.CreateType(dynamicProperties, false);
 
             var bindings = joinGroup.Select(p =>
             {
                 var propExp = Expression.PropertyOrField(parameter, p.Property.Name);
-                return Expression.Bind(resultType.GetProperty(p.SchemeProperty.Name),
-                     Expression.PropertyOrField(propExp, p.SchemeProperty.Name));
+                return Expression.Bind(resultType.GetProperty(p.SchemaProperty.Name),
+                     Expression.PropertyOrField(propExp, p.SchemaProperty.Name));
             });
             var newExpression = Expression.MemberInit(Expression.New(resultType), bindings);
             return new GraphExpression()

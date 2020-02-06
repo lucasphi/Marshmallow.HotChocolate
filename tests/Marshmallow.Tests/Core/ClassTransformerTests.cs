@@ -94,9 +94,9 @@ namespace Marshmallow.Tests.Core
                     IntInnerProp = 1,
                 }
             };
-            var result = transformer.Transform<AttrScheme>(testObj);
+            var result = transformer.Transform<AttrSchema>(testObj);
 
-            result.Should().BeEquivalentTo(new AttrScheme()
+            result.Should().BeEquivalentTo(new AttrSchema()
             {
                 StrProp = "Hello",
                 InnerProp = "Val",
