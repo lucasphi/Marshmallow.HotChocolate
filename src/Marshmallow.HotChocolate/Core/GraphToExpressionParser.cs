@@ -19,20 +19,12 @@ namespace Marshmallow.HotChocolate.Core
         private readonly ExpressionParameters _expressionParameters = new ExpressionParameters();
         private readonly GenericTypeCollection _typeCollection = new GenericTypeCollection();
 
-        private Type _schemaType = typeof(TEntity);
-
         public GraphToExpressionParser(QueryDocument queryDocument)
         {
             _queryDocument = queryDocument;
         }
 
         public Expression<Func<TEntity, dynamic>> CreateExpression<TSchema>()
-        {
-            _schemaType = typeof(TSchema);
-            return CreateExpression();
-        }
-
-        public Expression<Func<TEntity, dynamic>> CreateExpression()
         {
             var operationDefinition = _queryDocument.Document.Definitions.FirstOrDefault() as OperationDefinitionNode;
 
@@ -45,7 +37,7 @@ namespace Marshmallow.HotChocolate.Core
 
             var parameter = Expression.Parameter(typeof(TEntity), _expressionParameters.Next());
 
-            var newExpression = CreateNewExpression(fieldNode, typeof(TEntity), _schemaType, parameter);
+            var newExpression = CreateNewExpression(fieldNode, typeof(TEntity), typeof(TSchema), parameter);
 
             return Expression.Lambda<Func<TEntity, dynamic>>(newExpression, parameter);
         }

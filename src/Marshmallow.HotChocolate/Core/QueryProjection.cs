@@ -24,13 +24,18 @@ namespace Marshmallow.HotChocolate.Core
 
         public Expression<Func<TEntity, dynamic>> CreateExpression<TEntity>()
         {
-            return CreateExpression<TEntity>(_readOnlyQueryRequest.Query);
+            return CreateExpression<TEntity, TEntity>(_readOnlyQueryRequest.Query);
         }
 
-        protected virtual Expression<Func<TEntity, dynamic>> CreateExpression<TEntity>(IQuery query)
+        public Expression<Func<TEntity, dynamic>> CreateExpression<TEntity, TScheme>()
+        {
+            return CreateExpression<TEntity, TScheme>(_readOnlyQueryRequest.Query);
+        }
+
+        protected virtual Expression<Func<TEntity, dynamic>> CreateExpression<TEntity, TScheme>(IQuery query)
         {
             var parser = new GraphToExpressionParser<TEntity>(query as QueryDocument);
-            return parser.CreateExpression();
+            return parser.CreateExpression<TScheme>();
         }
 
         public TScheme CreateScheme<TScheme>(object result)

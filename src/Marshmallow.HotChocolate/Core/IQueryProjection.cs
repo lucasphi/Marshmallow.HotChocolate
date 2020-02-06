@@ -7,6 +7,8 @@ namespace Marshmallow.HotChocolate
     {
         Expression<Func<TEntity, dynamic>> CreateExpression<TEntity>();
 
+        Expression<Func<TEntity, dynamic>> CreateExpression<TEntity, TScheme>();
+
         TScheme CreateScheme<TScheme>(object result) where TScheme : class, new();
     }
 }
