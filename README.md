@@ -49,7 +49,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-You can inject *IQueryProjection* interface on your Queries and call *CreateExpression* to create you projection.
+You can inject *IQueryProjection* interface on your Queries and call *CreateExpression* to create you projection. After the data is loaded, use the method *CreateScheme* or your favorite mapping package to convert the result into your scheme.
 
 ```
 public class ClientsQuery
@@ -78,5 +78,39 @@ public class ClientsQuery
         // Convert the result
         return _queryProjection.CreateScheme<List<Client>>(result);
     }
+}
+```
+
+#### JoinAttribute
+
+The JoinAttribute can be used to decorate the properties of your scheme, to flatten a 1 to 1 relationship.
+
+The following scheme
+```
+public class MyClassScheme
+{
+   public string Fow { get; set; }
+
+   [Join(nameof(MyClassEntity.InnerClassData)]
+   public string Foo { get; set; }
+   
+   [Join(nameof(MyClassEntity.InnerClassData)]
+   public string Bar { get; set; }
+}
+```
+can be used to load the entity below
+```
+public class MyClassEntity
+{
+   public string Fow { get; set; }
+
+   public InnerClassEntity { get; set; }
+}
+
+public class InnerClassEntity
+{
+   public string Foo { get; set; }
+   
+   public string Bar { get; set; }
 }
 ```
