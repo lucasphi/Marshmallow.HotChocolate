@@ -5,6 +5,7 @@
     <PackageIcon>Marshmallow.png</PackageIcon>
     <PackageIconUrl />
     <PackageProjectUrl>https://github.com/lucasphi/Marshmallow.HotChocolate</PackageProjectUrl>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
