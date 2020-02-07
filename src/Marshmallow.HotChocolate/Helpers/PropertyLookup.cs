@@ -1,11 +1,12 @@
 ﻿using HotChocolate;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Marshmallow.Tests")]
-namespace Marshmallow.HotChocolate.Core
+namespace Marshmallow.HotChocolate.Helpers
 {
     class PropertyLookup
     {
@@ -32,6 +33,11 @@ namespace Marshmallow.HotChocolate.Core
                 }
             }
             return null;
+        }
+
+        public IEnumerable<PropertyInfo> GetAllProperties()
+        {
+            return _properties;
         }
     }
 }

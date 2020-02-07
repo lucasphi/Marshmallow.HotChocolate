@@ -53,7 +53,7 @@ namespace Marshmallow.Tests.Core
             : base(httpContextAccessor)
         { }
 
-        protected override System.Linq.Expressions.Expression<Func<TEntity, dynamic>> CreateExpression<TEntity>(IQuery query)
+        protected override System.Linq.Expressions.Expression<Func<TEntity, dynamic>> CreateExpression<TEntity, TSchema>(IQuery query)
         {
             Visited = true;
             return null;

@@ -1,4 +1,5 @@
 ﻿using HotChocolate.Execution;
+using Marshmallow.HotChocolate.Core.Transformer;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq.Expressions;
@@ -23,13 +24,25 @@ namespace Marshmallow.HotChocolate.Core
 
         public Expression<Func<TEntity, dynamic>> CreateExpression<TEntity>()
         {
-            return CreateExpression<TEntity>(_readOnlyQueryRequest.Query);
+            return CreateExpression<TEntity, TEntity>(_readOnlyQueryRequest.Query);
         }
 
-        protected virtual Expression<Func<TEntity, dynamic>> CreateExpression<TEntity>(IQuery query)
+        public Expression<Func<TEntity, dynamic>> CreateExpression<TEntity, TSchema>()
+        {
+            return CreateExpression<TEntity, TSchema>(_readOnlyQueryRequest.Query);
+        }
+
+        protected virtual Expression<Func<TEntity, dynamic>> CreateExpression<TEntity, TSchema>(IQuery query)
         {
             var parser = new GraphToExpressionParser<TEntity>(query as QueryDocument);
-            return parser.CreateExpression();
+            return parser.CreateExpression<TSchema>();
+        }
+
+        public TSchema CreateSchema<TSchema>(object result)
+            where TSchema : class, new()
+        {
+            var transformer = new ClassTransformer();
+            return transformer.Transform<TSchema>(result);
         }
     }
 }

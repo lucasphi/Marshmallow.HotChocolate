@@ -4,7 +4,6 @@ using HotChocolate.Language;
 using Marshmallow.HotChocolate;
 using Marshmallow.HotChocolate.Core;
 using System;
-using System.Collections.Generic;
 using Xunit;
 
 namespace Marshmallow.Tests.Core
@@ -12,9 +11,9 @@ namespace Marshmallow.Tests.Core
     public class GraphToExpressionParserTests
     {
         [Fact]
-        public void CreateExpressionForQuery()
+        public void CreateBasicExpression()
         {
-            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp intProp dateProp child { strProp } sameClass { strProp } children { strProp } } }");
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp intProp dateProp } }");
 
             var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
 
@@ -22,15 +21,31 @@ namespace Marshmallow.Tests.Core
 
             var parser = new GraphToExpressionParser<TestClass>(queryRequest.Query as QueryDocument);
 
-            var expression = parser.CreateExpression();
+            var expression = parser.CreateExpression<TestClass>();
 
-            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp, Child = new {StrProp = a.Child.StrProp}, SameClass = new {StrProp = a.SameClass.StrProp}, Children = a.Children.Select(b => new {StrProp = b.StrProp})}");
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp}");
+        }
+
+        [Fact]
+        public void CreateExpressionForQuery()
+        {
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp intProp dateProp child { otherStrProp } sameClass { strProp } children { listStrProp } } }");
+
+            var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
+
+            var queryRequest = queryBuilder.Create();
+
+            var parser = new GraphToExpressionParser<TestClass>(queryRequest.Query as QueryDocument);
+
+            var expression = parser.CreateExpression<TestClass>();
+
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp, Child = new {OtherStrProp = a.Child.OtherStrProp}, SameClass = new {StrProp = a.SameClass.StrProp}, Children = a.Children.Select(b => new {ListStrProp = b.ListStrProp})}");
         }
 
         [Fact]
         public void CreateExpressionForMutation()
         {
-            DocumentNode document = Utf8GraphQLParser.Parse("mutation { updateClient(strProp: \"test\") { strProp intProp dateProp child { strProp } sameClass { strProp } children { strProp } } }");
+            DocumentNode document = Utf8GraphQLParser.Parse("mutation { updateClient(strProp: \"test\") { strProp intProp dateProp child { otherStrProp } sameClass { strProp } children { listStrProp } } }");
 
             var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
 
@@ -38,9 +53,9 @@ namespace Marshmallow.Tests.Core
 
             var parser = new GraphToExpressionParser<TestClass>(queryRequest.Query as QueryDocument);
 
-            var expression = parser.CreateExpression();
+            var expression = parser.CreateExpression<TestClass>();
 
-            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp, Child = new {StrProp = a.Child.StrProp}, SameClass = new {StrProp = a.SameClass.StrProp}, Children = a.Children.Select(b => new {StrProp = b.StrProp})}");
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp, Child = new {OtherStrProp = a.Child.OtherStrProp}, SameClass = new {StrProp = a.SameClass.StrProp}, Children = a.Children.Select(b => new {ListStrProp = b.ListStrProp})}");
         }
 
         [Fact]
@@ -54,34 +69,25 @@ namespace Marshmallow.Tests.Core
 
             var parser = new GraphToExpressionParser<TestClass>(queryRequest.Query as QueryDocument);
 
-            Exception exception = Assert.Throws<UnsupportedOperationException>(() => parser.CreateExpression());
+            Exception exception = Assert.Throws<UnsupportedOperationException>(() => parser.CreateExpression<TestClass>());
             exception.Should().BeOfType(typeof(UnsupportedOperationException));
             exception.Message.Should().Be("There is no support for the operation Subscription");
         }
 
-        public class TestClass
+        [Fact]
+        public void ClassConvertion()
         {
-            public string StrProp { get; set; }
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp innerProp intInnerProp } }");
 
-            public int IntProp { get; set; }
+            var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
 
-            public DateTime DateProp { get; set; }
+            var queryRequest = queryBuilder.Create();
 
-            public OtherClass Child { get; set; }
+            var parser = new GraphToExpressionParser<AttrData>(queryRequest.Query as QueryDocument);
 
-            public TestClass SameClass { get; set; }
+            var expression = parser.CreateExpression<AttrSchema>();
 
-            public ICollection<ListClass> Children { get; set; }
-        }
-
-        public class OtherClass
-        {
-            public string StrProp { get; set; }
-        }
-
-        public class ListClass
-        {
-            public string StrProp { get; set; }
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, Child = new {InnerProp = a.Child.InnerProp, IntInnerProp = a.Child.IntInnerProp}}");
         }
     }
 }

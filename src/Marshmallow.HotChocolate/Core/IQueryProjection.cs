@@ -6,5 +6,9 @@ namespace Marshmallow.HotChocolate
     public interface IQueryProjection
     {
         Expression<Func<TEntity, dynamic>> CreateExpression<TEntity>();
+
+        Expression<Func<TEntity, dynamic>> CreateExpression<TEntity, TSchema>();
+
+        TSchema CreateSchema<TSchema>(object result) where TSchema : class, new();
     }
 }
