@@ -1,5 +1,4 @@
 ﻿using HotChocolate.Execution;
-using Marshmallow.HotChocolate.Core.Transformer;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq.Expressions;
@@ -36,13 +35,6 @@ namespace Marshmallow.HotChocolate.Core
         {
             var parser = new GraphToExpressionParser<TEntity>(query as QueryDocument);
             return parser.CreateExpression<TSchema>();
-        }
-
-        public TSchema CreateSchema<TSchema>(object result)
-            where TSchema : class, new()
-        {
-            var transformer = new ClassTransformer();
-            return transformer.Transform<TSchema>(result);
         }
     }
 }
