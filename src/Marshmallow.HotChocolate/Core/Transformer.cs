@@ -1,30 +1,30 @@
-﻿using Marshmallow.HotChocolate.Core.Attributes;
-using Marshmallow.HotChocolate.Helpers;
+﻿using Marshmallow.HotChocolate.Helpers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Marshmallow.HotChocolate.Core.Transformer
+namespace Marshmallow.HotChocolate.Core
 {
-    class ClassTransformer
+    class Transformer
     {
-        #region Injection Handler
         /// <summary>
         /// Maps a source object to a target.
         /// </summary>
-        /// <typeparam name="TDestiny">The target type.</typeparam>
+        /// <typeparam name="TDestination">The target type.</typeparam>
         /// <param name="source">The source object.</param>
-        public virtual TDestiny Transform<TDestiny>(object source)
-            where TDestiny : class, new()
+        public TDestination Transform<TDestination>(object source)
+            where TDestination : class, new()
         {
             if (source == null)
                 return null;
 
-            return InjectFrom(typeof(TDestiny), source) as TDestiny;
+            var transformer = new Transformer();
+            return transformer.InjectFrom(typeof(TDestination), source) as TDestination;
         }
 
+        #region Injection Handler
         /// <summary>
         /// Maps a source object to a target type.
         /// </summary>

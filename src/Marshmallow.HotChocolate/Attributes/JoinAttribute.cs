@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Marshmallow.HotChocolate.Core.Attributes
+namespace Marshmallow.HotChocolate
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class JoinAttribute : Attribute

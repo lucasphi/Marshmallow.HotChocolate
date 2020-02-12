@@ -1,21 +1,19 @@
 ﻿using FluentAssertions;
-using Marshmallow.HotChocolate.Core.Transformer;
+using Marshmallow.HotChocolate;
+using Marshmallow.HotChocolate.Core;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Xunit;
 
 [assembly: InternalsVisibleTo("Marshmallow.Tests")]
 namespace Marshmallow.Tests.Core
 {
-    public class ClassTransformerTests
+    public class TransformerTests
     {
         [Fact]
         public void MapObject()
         {
-            var transformer = new ClassTransformer();
-
             var testObj = new
             {
                 StrProp = "Hello",
@@ -26,7 +24,7 @@ namespace Marshmallow.Tests.Core
                     OtherStrProp = "Inner"
                 }
             };
-            var result = transformer.Transform<TestClass>(testObj);
+            var result = new Transformer().Transform<TestClass>(testObj);
 
             result.Should().BeEquivalentTo(new TestClass()
             {
@@ -43,8 +41,6 @@ namespace Marshmallow.Tests.Core
         [Fact]
         public void MapList()
         {
-            var transformer = new ClassTransformer();
-
             List<object> list = new List<object>
             {
                 new {
@@ -59,7 +55,7 @@ namespace Marshmallow.Tests.Core
                     StrProp = "Hello2",
                 }
             };
-            var result = transformer.Transform<List<TestClass>>(list);
+            var result = new Transformer().Transform<List<TestClass>>(list);
 
             result.Should().BeEquivalentTo(new List<TestClass>
             {
@@ -83,8 +79,6 @@ namespace Marshmallow.Tests.Core
         [Fact]
         public void MapObjectWithAttribute()
         {
-            var transformer = new ClassTransformer();
-
             var testObj = new
             {
                 StrProp = "Hello",
@@ -94,13 +88,28 @@ namespace Marshmallow.Tests.Core
                     IntInnerProp = 1,
                 }
             };
-            var result = transformer.Transform<AttrSchema>(testObj);
+            var result = new Transformer().Transform<AttrSchema>(testObj);
 
             result.Should().BeEquivalentTo(new AttrSchema()
             {
                 StrProp = "Hello",
                 InnerProp = "Val",
                 IntInnerProp = 1,
+            });
+        }
+
+        [Fact]
+        public void MapUsingStaticClass()
+        {
+            var testObj = new
+            {
+                StrProp = "Hello",                
+            };
+            var result = Schema.Create<TestClass>(testObj);
+
+            result.Should().BeEquivalentTo(new TestClass()
+            {
+                StrProp = "Hello",                
             });
         }
     }
