@@ -1,6 +1,5 @@
 ﻿using HotChocolate.Execution;
 using HotChocolate.Language;
-using Marshmallow.HotChocolate.Core.Attributes;
 using Marshmallow.HotChocolate.Helpers;
 using System;
 using System.Collections.Generic;

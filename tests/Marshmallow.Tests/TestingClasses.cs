@@ -1,4 +1,4 @@
-﻿using Marshmallow.HotChocolate.Core.Attributes;
+﻿using Marshmallow.HotChocolate;
 using System;
 using System.Collections.Generic;
 

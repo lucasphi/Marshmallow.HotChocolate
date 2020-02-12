@@ -1,5 +1,4 @@
-﻿using Marshmallow.HotChocolate.Core.Attributes;
-using Marshmallow.HotChocolate.Helpers;
+﻿using Marshmallow.HotChocolate.Helpers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,14 +7,14 @@ using System.Reflection;
 
 namespace Marshmallow.HotChocolate.Core
 {
-    public class Transformer
+    class Transformer
     {
         /// <summary>
         /// Maps a source object to a target.
         /// </summary>
         /// <typeparam name="TDestiny">The target type.</typeparam>
         /// <param name="source">The source object.</param>
-        public static TDestiny Transform<TDestiny>(object source)
+        public TDestiny Transform<TDestiny>(object source)
             where TDestiny : class, new()
         {
             if (source == null)
@@ -24,9 +23,6 @@ namespace Marshmallow.HotChocolate.Core
             var transformer = new Transformer();
             return transformer.InjectFrom(typeof(TDestiny), source) as TDestiny;
         }
-
-        protected Transformer()
-        { }
 
         #region Injection Handler
         /// <summary>

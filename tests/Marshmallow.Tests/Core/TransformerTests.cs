@@ -23,7 +23,7 @@ namespace Marshmallow.Tests.Core
                     OtherStrProp = "Inner"
                 }
             };
-            var result = Transformer.Transform<TestClass>(testObj);
+            var result = new Transformer().Transform<TestClass>(testObj);
 
             result.Should().BeEquivalentTo(new TestClass()
             {
@@ -54,7 +54,7 @@ namespace Marshmallow.Tests.Core
                     StrProp = "Hello2",
                 }
             };
-            var result = Transformer.Transform<List<TestClass>>(list);
+            var result = new Transformer().Transform<List<TestClass>>(list);
 
             result.Should().BeEquivalentTo(new List<TestClass>
             {
@@ -87,7 +87,7 @@ namespace Marshmallow.Tests.Core
                     IntInnerProp = 1,
                 }
             };
-            var result = Transformer.Transform<AttrSchema>(testObj);
+            var result = new Transformer().Transform<AttrSchema>(testObj);
 
             result.Should().BeEquivalentTo(new AttrSchema()
             {
