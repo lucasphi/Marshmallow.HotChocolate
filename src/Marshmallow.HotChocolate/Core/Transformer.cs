@@ -12,16 +12,16 @@ namespace Marshmallow.HotChocolate.Core
         /// <summary>
         /// Maps a source object to a target.
         /// </summary>
-        /// <typeparam name="TDestiny">The target type.</typeparam>
+        /// <typeparam name="TDestination">The target type.</typeparam>
         /// <param name="source">The source object.</param>
-        public TDestiny Transform<TDestiny>(object source)
-            where TDestiny : class, new()
+        public TDestination Transform<TDestination>(object source)
+            where TDestination : class, new()
         {
             if (source == null)
                 return null;
 
             var transformer = new Transformer();
-            return transformer.InjectFrom(typeof(TDestiny), source) as TDestiny;
+            return transformer.InjectFrom(typeof(TDestination), source) as TDestination;
         }
 
         #region Injection Handler

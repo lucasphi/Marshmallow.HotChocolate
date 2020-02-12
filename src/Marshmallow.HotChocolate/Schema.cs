@@ -7,10 +7,10 @@ namespace Marshmallow.HotChocolate
 {
     public static class Schema
     {
-        public static TDestiny Create<TDestiny>(object source)
-            where TDestiny : class, new()
+        public static TDestination Create<TDestination>(object source)
+            where TDestination : class, new()
         {
-            return new Transformer().Transform<TDestiny>(source);
+            return new Transformer().Transform<TDestination>(source);
         }
     }
 }
