@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Marshmallow.HotChocolate;
 using Marshmallow.HotChocolate.Core;
 using System;
 using System.Collections.Generic;
@@ -94,6 +95,21 @@ namespace Marshmallow.Tests.Core
                 StrProp = "Hello",
                 InnerProp = "Val",
                 IntInnerProp = 1,
+            });
+        }
+
+        [Fact]
+        public void MapUsingStaticClass()
+        {
+            var testObj = new
+            {
+                StrProp = "Hello",                
+            };
+            var result = Schema.Create<TestClass>(testObj);
+
+            result.Should().BeEquivalentTo(new TestClass()
+            {
+                StrProp = "Hello",                
             });
         }
     }
