@@ -49,7 +49,8 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-You can inject *IQueryProjection* interface on your Queries and call *CreateExpression* to create you projection. After the data is loaded, use the method *CreateSchema* or your favorite mapping package to convert the result into your schema.
+You can inject *IQueryProjection* interface on your Queries and call *CreateExpression* to create you projection. 
+After the data is loaded, use the static method *Schema.Create* or your favorite mapping package to convert the result into your schema.
 
 ```
 public class ClientsQuery
@@ -76,7 +77,7 @@ public class ClientsQuery
         var result = _clientsRepository.Search(projection);
         
         // Convert the result
-        return _queryProjection.CreateSchema<List<Client>>(result);
+        return Schema.Create<List<Client>>(result);
     }
 }
 ```
@@ -104,7 +105,7 @@ public class MyClassEntity
 {
    public string Fow { get; set; }
 
-   public InnerClassEntity { get; set; }
+   public InnerClassEntity InnerClass { get; set; }
 }
 
 public class InnerClassEntity
