@@ -23,9 +23,9 @@ namespace Marshmallow.HotChocolate.Core
             _queryDocument = queryDocument;
         }
 
-        public Expression<Func<TEntity, dynamic>> CreateExpression<TSchema>(bool usePaging)
+        public Expression<Func<TEntity, dynamic>> CreateExpression<TSchema>(bool usePagination)
         {
-            if(usePaging)
+            if(usePagination)
                 return CreateExpression<TSchema>(
                     "edges", 
                     "node", 

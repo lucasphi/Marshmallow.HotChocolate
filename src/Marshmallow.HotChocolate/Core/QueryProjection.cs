@@ -21,20 +21,20 @@ namespace Marshmallow.HotChocolate.Core
             _readOnlyQueryRequest = httpContextAccessor.HttpContext.Items["graph"] as IReadOnlyQueryRequest;
         }
 
-        public Expression<Func<TEntity, dynamic>> CreateExpression<TEntity>()
+        public Expression<Func<TEntity, dynamic>> CreateExpression<TEntity>(bool usePagination = true)
         {
-            return CreateExpression<TEntity, TEntity>(_readOnlyQueryRequest.Query);
+            return CreateExpression<TEntity, TEntity>(_readOnlyQueryRequest.Query, usePagination);
         }
 
-        public Expression<Func<TEntity, dynamic>> CreateExpression<TEntity, TSchema>()
+        public Expression<Func<TEntity, dynamic>> CreateExpression<TEntity, TSchema>(bool usePagination = true)
         {
-            return CreateExpression<TEntity, TSchema>(_readOnlyQueryRequest.Query);
+            return CreateExpression<TEntity, TSchema>(_readOnlyQueryRequest.Query, usePagination);
         }
 
-        protected virtual Expression<Func<TEntity, dynamic>> CreateExpression<TEntity, TSchema>(IQuery query)
+        protected virtual Expression<Func<TEntity, dynamic>> CreateExpression<TEntity, TSchema>(IQuery query, bool usePagination)
         {
             var parser = new GraphToExpressionParser<TEntity>(query as QueryDocument);
-            return parser.CreateExpression<TSchema>();
+            return parser.CreateExpression<TSchema>(usePagination);
         }
     }
 }
