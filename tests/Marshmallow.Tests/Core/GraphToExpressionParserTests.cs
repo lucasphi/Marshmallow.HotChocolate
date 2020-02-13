@@ -11,6 +11,22 @@ namespace Marshmallow.Tests.Core
     public class GraphToExpressionParserTests
     {
         [Fact]
+        public void FilterPagingNodes()
+        {
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { edges { node { strProp intProp dateProp } } } }");
+
+            var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
+
+            var queryRequest = queryBuilder.Create();
+
+            var parser = new GraphToExpressionParser<TestClass>(queryRequest.Query as QueryDocument);
+
+            var expression = parser.CreateExpression<TestClass>("edges", "node");
+
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp}");
+        }
+
+        [Fact]
         public void CreateBasicExpression()
         {
             DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp intProp dateProp } }");

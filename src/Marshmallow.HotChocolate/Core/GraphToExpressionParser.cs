@@ -23,7 +23,7 @@ namespace Marshmallow.HotChocolate.Core
             _queryDocument = queryDocument;
         }
 
-        public Expression<Func<TEntity, dynamic>> CreateExpression<TSchema>()
+        public Expression<Func<TEntity, dynamic>> CreateExpression<TSchema>(params string[] filters)
         {
             var operationDefinition = _queryDocument.Document.Definitions.FirstOrDefault() as OperationDefinitionNode;
 
@@ -32,11 +32,15 @@ namespace Marshmallow.HotChocolate.Core
                 throw new UnsupportedOperationException(operationDefinition.Operation);
             }
 
-            var fieldNode = operationDefinition.SelectionSet.Selections.FirstOrDefault() as FieldNode;
+            var fieldNode = operationDefinition
+                .SelectionSet
+                .Selections
+                .Cast<FieldNode>()
+                .FirstOrDefault(s => !filters.Any(f => s.Name.Kind.ToString().ToLowerInvariant() == f.ToLowerInvariant()));
 
             var parameter = Expression.Parameter(typeof(TEntity), _expressionParameters.Next());
 
-            var newExpression = CreateNewExpression(fieldNode, typeof(TEntity), typeof(TSchema), parameter);
+            var newExpression = CreateNewExpression(fieldNode, typeof(TEntity), typeof(TSchema), parameter, filters);
 
             return Expression.Lambda<Func<TEntity, dynamic>>(newExpression, parameter);
         }
@@ -45,11 +49,12 @@ namespace Marshmallow.HotChocolate.Core
             FieldNode fieldNode,
             Type type,
             Type schemaType,
-            ParameterExpression parameter)
+            ParameterExpression parameter,
+            params string[] filters)
         {
             var selections = fieldNode.SelectionSet.Selections;
 
-            List<GraphExpression> graphExpressions = CreateGraphExpressionList(selections, type, schemaType, parameter);
+            List<GraphExpression> graphExpressions = CreateGraphExpressionList(selections, type, schemaType, parameter, parentName: null, filters: filters);
 
             var resultType = DynamicClassFactory.CreateType(graphExpressions.Select(f => f.Property).ToList(), false);
             _typeCollection.AddIfNotExists(type.FullName, resultType);
@@ -65,7 +70,8 @@ namespace Marshmallow.HotChocolate.Core
             Type type,
             Type schemaType,
             ParameterExpression parameter,
-            string parentName = null)
+            string parentName,
+            params string[] filters)
         {
             var graphExpressions = new List<GraphExpression>();
             var joinProperties = new List<GraphSchema>();
@@ -73,20 +79,40 @@ namespace Marshmallow.HotChocolate.Core
             var schemaLookup = new PropertyLookup(schemaType);
             foreach (FieldNode fieldNode in selections)
             {
-                PropertyInfo schemaInfo = schemaLookup.FindProperty(fieldNode.Name.Value);
-                if (schemaInfo != null)
-                {   
-                    var joinAttr = schemaInfo.GetCustomAttribute<JoinAttribute>();
-                    if (joinAttr != null)
-                    {
-                        PropertyInfo propertyInfo = propertyLookup.FindProperty(joinAttr.PropertyName);
-                        joinProperties.Add(new GraphSchema(propertyInfo, schemaInfo));
-                    }
-                    else
-                    {
-                        PropertyInfo propertyInfo = propertyLookup.FindProperty(fieldNode.Name.Value);
-                        GraphExpression graphExpression = CreateGraphExpression(propertyInfo, fieldNode, parameter, schemaType, parentName);
-                        graphExpressions.Add(graphExpression);
+                var currentNodes = new List<FieldNode>{ fieldNode };
+                while(currentNodes.Any(n => filters.Any(f => f.ToLowerInvariant() == n.Name.Value.ToLowerInvariant())))
+                {
+                    var filteredNodes = currentNodes
+                        .Where(n => filters.Any(f => f.ToLowerInvariant() == n.Name.Value.ToLowerInvariant()))
+                        .SelectMany(n => n.SelectionSet.Selections)
+                        .Cast<FieldNode>()
+                        .ToList();
+                    filteredNodes.AddRange(
+                        currentNodes
+                            .Where(n => !filters.Any(f => f.ToLowerInvariant() == n.Name.Value.ToLowerInvariant()))
+                            .Cast<FieldNode>()
+                            .ToList()
+                    );
+                    currentNodes = filteredNodes;
+                }
+
+                foreach(var currentNode in currentNodes)
+                {
+                    PropertyInfo schemaInfo = schemaLookup.FindProperty(currentNode.Name.Value);
+                    if (schemaInfo != null)
+                    {   
+                        var joinAttr = schemaInfo.GetCustomAttribute<JoinAttribute>();
+                        if (joinAttr != null)
+                        {
+                            PropertyInfo propertyInfo = propertyLookup.FindProperty(joinAttr.PropertyName);
+                            joinProperties.Add(new GraphSchema(propertyInfo, schemaInfo));
+                        }
+                        else
+                        {
+                            PropertyInfo propertyInfo = propertyLookup.FindProperty(currentNode.Name.Value);
+                            GraphExpression graphExpression = CreateGraphExpression(propertyInfo, currentNode, parameter, schemaType, parentName);
+                            graphExpressions.Add(graphExpression);
+                        }
                     }
                 }
             }
