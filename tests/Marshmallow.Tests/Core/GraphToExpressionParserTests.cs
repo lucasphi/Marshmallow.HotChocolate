@@ -13,7 +13,31 @@ namespace Marshmallow.Tests.Core
         [Fact]
         public void FilterPagingNodes()
         {
-            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { edges { node { strProp intProp dateProp } } } }");
+            DocumentNode document = Utf8GraphQLParser.Parse(@"
+            {
+                testQuery
+                {
+                    edges
+                    {
+                        node
+                        {
+                            strProp intProp dateProp child { otherStrProp }
+                        }
+                    }
+                    nodes 
+                    {
+                        strProp intProp dateProp child { otherStrProp }
+                    }
+                    pageInfo
+                    {
+                        endCursor
+                        hasNextPage
+                        hasPreviousPage
+                        startCursor
+                    }
+                    totalCount
+                }
+            }");
 
             var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
 
@@ -21,9 +45,9 @@ namespace Marshmallow.Tests.Core
 
             var parser = new GraphToExpressionParser<TestClass>(queryRequest.Query as QueryDocument);
 
-            var expression = parser.CreateExpression<TestClass>("edges", "node");
+            var expression = parser.CreateExpression<TestClass>(usePaging: true);
 
-            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp}");
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp, Child = new {OtherStrProp = a.Child.OtherStrProp}}");
         }
 
         [Fact]

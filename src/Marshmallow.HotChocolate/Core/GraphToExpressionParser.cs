@@ -23,6 +23,23 @@ namespace Marshmallow.HotChocolate.Core
             _queryDocument = queryDocument;
         }
 
+        public Expression<Func<TEntity, dynamic>> CreateExpression<TSchema>(bool usePaging)
+        {
+            if(usePaging)
+                return CreateExpression<TSchema>(
+                    "edges", 
+                    "node", 
+                    "nodes", 
+                    "pageInfo", 
+                    "endCursor", 
+                    "hasNextPage", 
+                    "hasPreviousPage",
+                    "startCursor",
+                    "totalCount");
+            
+            return CreateExpression<TSchema>();
+        }
+
         public Expression<Func<TEntity, dynamic>> CreateExpression<TSchema>(params string[] filters)
         {
             var operationDefinition = _queryDocument.Document.Definitions.FirstOrDefault() as OperationDefinitionNode;
@@ -36,7 +53,7 @@ namespace Marshmallow.HotChocolate.Core
                 .SelectionSet
                 .Selections
                 .Cast<FieldNode>()
-                .FirstOrDefault(s => !filters.Any(f => s.Name.Kind.ToString().ToLowerInvariant() == f.ToLowerInvariant()));
+                .FirstOrDefault(s => !filters.Any(f => s.Name.Kind.ToString() == f));
 
             var parameter = Expression.Parameter(typeof(TEntity), _expressionParameters.Next());
 
@@ -56,12 +73,21 @@ namespace Marshmallow.HotChocolate.Core
 
             List<GraphExpression> graphExpressions = CreateGraphExpressionList(selections, type, schemaType, parameter, parentName: null, filters: filters);
 
-            var resultType = DynamicClassFactory.CreateType(graphExpressions.Select(f => f.Property).ToList(), false);
+            var unambiguousGraphExpressions = new List<GraphExpression>();
+            foreach(var expression in graphExpressions)
+            {
+                if(!unambiguousGraphExpressions.Any(fge => fge.Property.Name == expression.Property.Name))
+                    unambiguousGraphExpressions.Add(expression);
+            }
+
+            var resultType = DynamicClassFactory.CreateType(unambiguousGraphExpressions.Select(f => f.Property).ToList(), false);
             _typeCollection.AddIfNotExists(type.FullName, resultType);
 
-            var bindings = graphExpressions.Select(p => {
-                return Expression.Bind(resultType.GetProperty(p.Property.Name), p.Expression);
+            var bindings = unambiguousGraphExpressions.Select(p => {
+                var property = resultType.GetProperty(p.Property.Name);
+                return Expression.Bind(property, p.Expression);
             });
+
             return Expression.MemberInit(Expression.New(resultType), bindings);
         }
 
@@ -79,22 +105,7 @@ namespace Marshmallow.HotChocolate.Core
             var schemaLookup = new PropertyLookup(schemaType);
             foreach (FieldNode fieldNode in selections)
             {
-                var currentNodes = new List<FieldNode>{ fieldNode };
-                while(currentNodes.Any(n => filters.Any(f => f.ToLowerInvariant() == n.Name.Value.ToLowerInvariant())))
-                {
-                    var filteredNodes = currentNodes
-                        .Where(n => filters.Any(f => f.ToLowerInvariant() == n.Name.Value.ToLowerInvariant()))
-                        .SelectMany(n => n.SelectionSet.Selections)
-                        .Cast<FieldNode>()
-                        .ToList();
-                    filteredNodes.AddRange(
-                        currentNodes
-                            .Where(n => !filters.Any(f => f.ToLowerInvariant() == n.Name.Value.ToLowerInvariant()))
-                            .Cast<FieldNode>()
-                            .ToList()
-                    );
-                    currentNodes = filteredNodes;
-                }
+                var currentNodes = FilterNodes(fieldNode, filters);
 
                 foreach(var currentNode in currentNodes)
                 {
@@ -122,7 +133,33 @@ namespace Marshmallow.HotChocolate.Core
             {
                 graphExpressions.Add(CreateJoinGraphExpression(parameter, joinGroup));
             }
+
             return graphExpressions;
+        }
+
+        private List<FieldNode> FilterNodes(FieldNode fieldNode, params string[] filters)
+        {
+            var currentNodes = new List<FieldNode>{ fieldNode };
+
+            while(currentNodes.Any(n => filters.Any(f => f == n.Name.Value)))
+            {
+                var filteredNodes = currentNodes
+                    .Where(n => filters.Any(f => f == n.Name.Value))
+                    .SelectMany(n => n?.SelectionSet?.Selections ?? new List<FieldNode>())
+                    .Cast<FieldNode>()
+                    .ToList();
+
+                filteredNodes.AddRange(
+                    currentNodes
+                        .Where(n => !filters.Any(f => f == n.Name.Value))
+                        .Cast<FieldNode>()
+                        .ToList()
+                );
+                
+                currentNodes = filteredNodes;
+            }
+
+            return currentNodes;
         }
 
         private GraphExpression CreateJoinGraphExpression(ParameterExpression parameter, IGrouping<string, GraphSchema> joinGroup)
