@@ -137,26 +137,16 @@ namespace Marshmallow.HotChocolate.Core
             return graphExpressions;
         }
 
-        private List<FieldNode> FilterNodes(FieldNode fieldNode, params string[] filters)
+        private IEnumerable<FieldNode> FilterNodes(FieldNode fieldNode, params string[] filters)
         {
-            var currentNodes = new List<FieldNode>{ fieldNode };
+            IEnumerable<FieldNode> currentNodes = new List<FieldNode>{ fieldNode };
 
             while(currentNodes.Any(n => filters.Any(f => f == n.Name.Value)))
             {
-                var filteredNodes = currentNodes
+                currentNodes = currentNodes
                     .Where(n => filters.Any(f => f == n.Name.Value))
                     .SelectMany(n => n?.SelectionSet?.Selections ?? new List<FieldNode>())
-                    .Cast<FieldNode>()
-                    .ToList();
-
-                filteredNodes.AddRange(
-                    currentNodes
-                        .Where(n => !filters.Any(f => f == n.Name.Value))
-                        .Cast<FieldNode>()
-                        .ToList()
-                );
-                
-                currentNodes = filteredNodes;
+                    .Cast<FieldNode>();
             }
 
             return currentNodes;
