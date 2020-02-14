@@ -31,6 +31,7 @@ namespace Marshmallow.Tests
     public class SecondChildClass
     {
         public Guid Id { get; set; }
+        public bool EmptyId { get => Id != Guid.Empty; }
     }
 
     public class ListClass

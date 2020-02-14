@@ -133,7 +133,7 @@ namespace Marshmallow.Tests.Core
         [Fact]
         public void CreateExpressionFromComplexObjectWithListInside()
         {
-            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { child { otherStrProp secondChild { id } } } }");
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { child { otherStrProp secondChild { id EmptyId } } } }");
 
             var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
 
@@ -143,7 +143,7 @@ namespace Marshmallow.Tests.Core
 
             var expression = parser.CreateExpression<TestClass>();
 
-            expression.ToString().Should().Be("a => new {Child = new {OtherStrProp = a.Child.OtherStrProp, SecondChild = a.Child.SecondChild.Select(b => new {Id = b.Id})}}");
+            expression.ToString().Should().Be("a => new {Child = new {OtherStrProp = a.Child.OtherStrProp, SecondChild = a.Child.SecondChild.Select(b => new {Id = b.Id, EmptyId = b.EmptyId})}}");
         }
     }
 }
