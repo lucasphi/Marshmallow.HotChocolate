@@ -95,7 +95,7 @@ namespace Marshmallow.HotChocolate.Core
             IReadOnlyList<ISelectionNode> selections,
             Type type,
             Type schemaType,
-            ParameterExpression parameter,
+            Expression parameter,
             string parentName,
             params string[] filters)
         {
@@ -152,7 +152,7 @@ namespace Marshmallow.HotChocolate.Core
             return currentNodes;
         }
 
-        private GraphExpression CreateJoinGraphExpression(ParameterExpression parameter, IGrouping<string, GraphSchema> joinGroup)
+        private GraphExpression CreateJoinGraphExpression(Expression parameter, IGrouping<string, GraphSchema> joinGroup)
         {
             var dynamicProperties = joinGroup.Select(f => new DynamicProperty(f.SchemaProperty.Name, f.SchemaProperty.PropertyType)).ToList();
             var resultType = DynamicClassFactory.CreateType(dynamicProperties, false);
@@ -174,47 +174,38 @@ namespace Marshmallow.HotChocolate.Core
         private GraphExpression CreateGraphExpression(
             PropertyInfo propertyInfo,
             FieldNode fieldNode,
-            ParameterExpression parameter,
+            Expression parameter,
             Type schemaType,
             string parentName)
         {
+            Expression expression = (parentName != null) ? Expression.PropertyOrField(parameter, parentName) : parameter;
+            
             if (propertyInfo.PropertyType.IsGenericCollection())
             {
-                return CreateCollectionGraphExpression(fieldNode, parameter, propertyInfo, schemaType);
+                return CreateCollectionGraphExpression(fieldNode, expression, propertyInfo, schemaType);
             }
             else if (!propertyInfo.PropertyType.IsTypePrimitive())
             {
-                return CreateComplexGraphExpression(fieldNode, parameter, propertyInfo, schemaType);
+                return CreateComplexGraphExpression(fieldNode, expression, propertyInfo, schemaType);
             }
 
-            return CreateGraphExpression(parameter, propertyInfo, parentName);
+            return CreateGraphExpression(expression, propertyInfo);
         }
 
         private static GraphExpression CreateGraphExpression(
-            ParameterExpression parameter,
-            PropertyInfo prop,
-            string parentName)
+            Expression parameter,
+            PropertyInfo prop)
         {
-            Expression expression;
-            if (parentName != null)
-            {
-                expression = Expression.PropertyOrField(parameter, parentName);
-            }
-            else
-            {
-                expression = parameter;
-            }
-
             return new GraphExpression
             {
                 Property = new DynamicProperty(prop.Name, prop.PropertyType),
-                Expression = Expression.PropertyOrField(expression, prop.Name)
+                Expression = Expression.PropertyOrField(parameter, prop.Name)
             };
         }
 
         private GraphExpression CreateCollectionGraphExpression(
             FieldNode fieldNode,
-            ParameterExpression parameter,
+            Expression parameter,
             PropertyInfo prop,
             Type schemaType)
         {
@@ -239,7 +230,7 @@ namespace Marshmallow.HotChocolate.Core
 
         private GraphExpression CreateComplexGraphExpression(
             FieldNode fieldNode,
-            ParameterExpression parameter,
+            Expression parameter,
             PropertyInfo prop,
             Type schemaType)
         {
