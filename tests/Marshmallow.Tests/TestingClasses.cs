@@ -24,6 +24,13 @@ namespace Marshmallow.Tests
     public class OtherClass
     {
         public string OtherStrProp { get; set; }
+
+        public List<SecondChildClass> SecondChild { get; set; }
+    }
+
+    public class SecondChildClass
+    {
+        public Guid Id { get; set; }
     }
 
     public class ListClass

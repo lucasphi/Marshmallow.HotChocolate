@@ -129,5 +129,21 @@ namespace Marshmallow.Tests.Core
 
             expression.ToString().Should().Be("a => new {StrProp = a.StrProp, Child = new {InnerProp = a.Child.InnerProp, IntInnerProp = a.Child.IntInnerProp}}");
         }
+
+        [Fact]
+        public void CreateExpressionFromComplexObjectWithListInside()
+        {
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { child { otherStrProp secondChild { id } } } }");
+
+            var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
+
+            var queryRequest = queryBuilder.Create();
+
+            var parser = new GraphToExpressionParser<TestClass>(queryRequest.Query as QueryDocument);
+
+            var expression = parser.CreateExpression<TestClass>();
+
+            expression.ToString().Should().Be("a => new {Child = new {OtherStrProp = a.Child.OtherStrProp, SecondChild = a.Child.SecondChild.Select(b => new {Id = b.Id})}}");
+        }
     }
 }
