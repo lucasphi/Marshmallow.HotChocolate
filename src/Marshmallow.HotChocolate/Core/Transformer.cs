@@ -98,7 +98,7 @@ namespace Marshmallow.HotChocolate.Core
         private void SetValue(object source, object target, PropertyInfo sourceMember, PropertyInfo targetMember)
         {
             var targetType = targetMember.PropertyType;
-            if (!targetType.IsPrimitive())
+            if (!targetType.IsTypePrimitive())
             {
                 var complexObject = sourceMember.GetValue(source);
                 if (complexObject != null)
