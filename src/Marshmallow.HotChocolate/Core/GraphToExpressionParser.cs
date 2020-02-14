@@ -182,7 +182,7 @@ namespace Marshmallow.HotChocolate.Core
             {
                 return CreateCollectionGraphExpression(fieldNode, parameter, propertyInfo, schemaType);
             }
-            else if (propertyInfo.PropertyType.IsComplex())
+            else if (!propertyInfo.PropertyType.IsTypePrimitive())
             {
                 return CreateComplexGraphExpression(fieldNode, parameter, propertyInfo, schemaType);
             }

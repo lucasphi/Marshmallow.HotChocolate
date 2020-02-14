@@ -53,7 +53,7 @@ namespace Marshmallow.Tests.Core
         [Fact]
         public void CreateBasicExpression()
         {
-            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp intProp dateProp } }");
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp intProp dateProp decProp } }");
 
             var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
 
@@ -63,7 +63,7 @@ namespace Marshmallow.Tests.Core
 
             var expression = parser.CreateExpression<TestClass>();
 
-            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp}");
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, IntProp = a.IntProp, DateProp = a.DateProp, DecProp = a.DecProp}");
         }
 
         [Fact]

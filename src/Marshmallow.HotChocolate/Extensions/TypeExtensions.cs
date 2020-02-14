@@ -6,16 +6,6 @@ namespace Marshmallow.HotChocolate
 {
     static class TypeExtensions
     {
-        public static bool IsComplex(this Type type)
-        {
-            return !type.IsPrimitive
-                && !type.IsGenericType
-                && !type.IsEnum
-                && type != typeof(string)
-                && type != typeof(DateTime)
-                && type != typeof(Guid);
-        }
-
         public static bool IsGenericCollection(this Type type)
         {
             if (type.IsGenericType)
@@ -27,7 +17,7 @@ namespace Marshmallow.HotChocolate
             return false;
         }
 
-        public static bool IsPrimitive(this Type type)
+        public static bool IsTypePrimitive(this Type type)
         {
             if (type.IsPrimitive || type.IsValueType)
                 return true;
@@ -38,9 +28,9 @@ namespace Marshmallow.HotChocolate
                 type = underlyingType;
             }
 
-            return (type == typeof(string) ||
-                    type == typeof(DateTime) ||
-                    type == typeof(decimal));
+            return type == typeof(string) ||
+                   type == typeof(DateTime) ||
+                   type == typeof(decimal);
         }
     }
 }

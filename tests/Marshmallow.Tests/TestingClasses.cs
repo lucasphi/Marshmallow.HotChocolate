@@ -12,6 +12,8 @@ namespace Marshmallow.Tests
 
         public DateTime DateProp { get; set; }
 
+        public decimal DecProp { get; set; }
+
         public OtherClass Child { get; set; }
 
         public TestClass SameClass { get; set; }
