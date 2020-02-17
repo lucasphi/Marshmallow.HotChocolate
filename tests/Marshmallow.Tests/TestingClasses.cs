@@ -62,4 +62,11 @@ namespace Marshmallow.Tests
 
         public int IntInnerProp { get; set; }
     }
+
+    public class GetterOnlyClass
+    {
+        public string Prop { get; set; }
+
+        public string GetterOnly { get; } = "Test";
+    }
 }

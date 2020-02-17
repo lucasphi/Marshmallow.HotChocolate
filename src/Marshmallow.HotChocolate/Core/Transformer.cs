@@ -107,7 +107,7 @@ namespace Marshmallow.HotChocolate.Core
                     targetMember.SetValue(target, targetMemberValue);
                 }
             }
-            else
+            else if (targetMember.SetMethod != null)
             {
                 var val = sourceMember.GetValue(source);
                 targetMember.SetValue(target, val);

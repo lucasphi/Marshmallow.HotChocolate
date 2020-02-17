@@ -112,5 +112,21 @@ namespace Marshmallow.Tests.Core
                 StrProp = "Hello",                
             });
         }
+
+        [Fact]
+        public void MapGetOnlyProperty()
+        {
+            var testObj = new
+            {
+                Prop = "Hello",
+                GetterOnly = "Value",
+            };
+            var result = new Transformer().Transform<GetterOnlyClass>(testObj);
+
+            result.Should().BeEquivalentTo(new GetterOnlyClass()
+            {
+                Prop = "Hello",
+            });
+        }
     }
 }
