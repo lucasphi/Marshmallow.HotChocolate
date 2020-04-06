@@ -1,4 +1,5 @@
 ﻿using Marshmallow.HotChocolate;
+using Marshmallow.HotChocolate.Attributes;
 using System;
 using System.Collections.Generic;
 
@@ -42,6 +43,12 @@ namespace Marshmallow.Tests
     {
         public string StrProp { get; set; }
 
+        [Alias("Prop")]
+        public string Prop1 { get; set; }
+
+        [Alias("Prop")]
+        public string Prop2 { get; set; }
+
         [Join(nameof(AttrData.Child))]
         public string InnerProp { get; set; }
 
@@ -52,6 +59,8 @@ namespace Marshmallow.Tests
     public class AttrData
     {
         public string StrProp { get; set; }
+
+        public string Prop { get; set; }
 
         public AttrChildData Child { get; set; }
     }

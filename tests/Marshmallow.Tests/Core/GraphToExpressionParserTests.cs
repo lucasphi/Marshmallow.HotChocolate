@@ -117,7 +117,7 @@ namespace Marshmallow.Tests.Core
         [Fact]
         public void ClassConvertion()
         {
-            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp innerProp intInnerProp } }");
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp innerProp intInnerProp prop1 } }");
 
             var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
 
@@ -127,7 +127,23 @@ namespace Marshmallow.Tests.Core
 
             var expression = parser.CreateExpression<AttrSchema>();
 
-            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, Child = new {InnerProp = a.Child.InnerProp, IntInnerProp = a.Child.IntInnerProp}}");
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp, Prop = a.Prop, Child = new {InnerProp = a.Child.InnerProp, IntInnerProp = a.Child.IntInnerProp}}");
+        }
+
+        [Fact]
+        public void DoesNotThrowWithNonExitingPropertyInSchema()
+        {
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp noProp } }");
+
+            var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
+
+            var queryRequest = queryBuilder.Create();
+
+            var parser = new GraphToExpressionParser<AttrData>(queryRequest.Query as QueryDocument);
+
+            var expression = parser.CreateExpression<AttrSchema>();
+
+            expression.ToString().Should().Be("a => new {StrProp = a.StrProp}");
         }
 
         [Fact]

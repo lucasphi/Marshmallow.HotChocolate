@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using HotChocolate;
+using Marshmallow.HotChocolate.Attributes;
 using Marshmallow.HotChocolate.Helpers;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,7 +90,7 @@ namespace Marshmallow.Tests.Helpers
 
             public int Prop2 { get; set; }
 
-            [GraphQLName("Prop3")]
+            [Alias("Prop3")]
             public string Test { get; set; }
 
             private string PrivateProp { get; set; }
