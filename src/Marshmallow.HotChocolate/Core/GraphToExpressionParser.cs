@@ -1,5 +1,6 @@
 ﻿using HotChocolate.Execution;
 using HotChocolate.Language;
+using Marshmallow.HotChocolate.Attributes;
 using Marshmallow.HotChocolate.Helpers;
 using System;
 using System.Collections.Generic;
@@ -120,7 +121,7 @@ namespace Marshmallow.HotChocolate.Core
                         }
                         else
                         {
-                            PropertyInfo propertyInfo = propertyLookup.FindProperty(currentNode.Name.Value);
+                            PropertyInfo propertyInfo = FindPropertyInfo(propertyLookup, currentNode, schemaInfo);
                             GraphExpression graphExpression = CreateGraphExpression(propertyInfo, currentNode, parameter, schemaType, parentName);
                             graphExpressions.Add(graphExpression);
                         }
@@ -169,6 +170,13 @@ namespace Marshmallow.HotChocolate.Core
                 Property = new DynamicProperty(joinGroup.First().Property.Name, typeof(object)),
                 Expression = newExpression
             };
+        }
+
+        private PropertyInfo FindPropertyInfo(PropertyLookup propertyLookup, FieldNode currentNode, PropertyInfo schemaInfo)
+        {
+            var aliasAttr = schemaInfo.GetCustomAttribute<AliasAttribute>();
+            var nodeName = aliasAttr != null ? aliasAttr.Name : currentNode.Name.Value;
+            return propertyLookup.FindProperty(nodeName);
         }
 
         private GraphExpression CreateGraphExpression(

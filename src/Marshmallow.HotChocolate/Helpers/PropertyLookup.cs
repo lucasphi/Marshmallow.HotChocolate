@@ -1,4 +1,4 @@
-﻿using HotChocolate;
+﻿using Marshmallow.HotChocolate.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,22 +12,26 @@ namespace Marshmallow.HotChocolate.Helpers
     {
         private readonly PropertyInfo[] _properties;
 
+        public Type Type { get; }
+
         public PropertyLookup(Type type)
         {
+            Type = type;
             _properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
         }
 
         public PropertyInfo FindProperty(string name)
         {
+            name = name.ToLower();
             foreach (var prop in _properties)
             {
-                if (prop.Name.ToLower() == name.ToLower())
+                var nameAttribute = prop.GetCustomAttributes(typeof(AliasAttribute), false).FirstOrDefault() as AliasAttribute;
+                if (nameAttribute != null && nameAttribute.Name.ToLower() == name)
                 {
                     return prop;
                 }
 
-                var nameAttribute = prop.GetCustomAttributes(typeof(GraphQLNameAttribute), false).FirstOrDefault() as GraphQLNameAttribute;
-                if (nameAttribute != null && nameAttribute.Name == name)
+                if (prop.Name.ToLower() == name)
                 {
                     return prop;
                 }
