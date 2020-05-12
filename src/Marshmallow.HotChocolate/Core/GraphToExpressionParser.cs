@@ -158,11 +158,11 @@ namespace Marshmallow.HotChocolate.Core
             var dynamicProperties = joinGroup.Select(f => new DynamicProperty(f.SchemaProperty.Name, f.SchemaProperty.PropertyType)).ToList();
             var resultType = DynamicClassFactory.CreateType(dynamicProperties, false);
 
-            var bindings = joinGroup.Select(p =>
+            var bindings = joinGroup.Select(schema =>
             {
-                var propExp = Expression.PropertyOrField(parameter, p.Property.Name);
-                return Expression.Bind(resultType.GetProperty(p.SchemaProperty.Name),
-                     Expression.PropertyOrField(propExp, p.SchemaProperty.Name));
+                var propExp = Expression.PropertyOrField(parameter, schema.Property.Name);
+                return Expression.Bind(resultType.GetProperty(schema.SchemaProperty.Name),
+                     Expression.PropertyOrField(propExp, schema.SchemaProperty.Name));
             });
             var newExpression = Expression.MemberInit(Expression.New(resultType), bindings);
             return new GraphExpression()
@@ -202,17 +202,10 @@ namespace Marshmallow.HotChocolate.Core
                 return CreateComplexGraphExpression(fieldNode, expression, propertyInfo, schemaType);
             }
 
-            return CreateGraphExpression(expression, propertyInfo);
-        }
-
-        private static GraphExpression CreateGraphExpression(
-            Expression parameter,
-            PropertyInfo prop)
-        {
             return new GraphExpression
             {
-                Property = new DynamicProperty(prop.Name, prop.PropertyType),
-                Expression = Expression.PropertyOrField(parameter, prop.Name)
+                Property = new DynamicProperty(propertyInfo.Name, propertyInfo.PropertyType),
+                Expression = Expression.PropertyOrField(expression, propertyInfo.Name)
             };
         }
 
