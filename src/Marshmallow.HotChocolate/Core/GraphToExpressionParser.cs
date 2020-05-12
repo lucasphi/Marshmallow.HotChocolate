@@ -176,7 +176,12 @@ namespace Marshmallow.HotChocolate.Core
         {
             var aliasAttr = schemaInfo.GetCustomAttribute<AliasAttribute>();
             var nodeName = aliasAttr != null ? aliasAttr.Name : currentNode.Name.Value;
-            return propertyLookup.FindProperty(nodeName);
+            var propertyInfo = propertyLookup.FindProperty(nodeName);
+            if (propertyInfo == null)
+            {
+                throw new PropertyNotFoundException(propertyLookup.Type.Name, nodeName);
+            }
+            return propertyInfo;
         }
 
         private GraphExpression CreateGraphExpression(
