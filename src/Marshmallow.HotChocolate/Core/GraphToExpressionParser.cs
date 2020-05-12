@@ -160,9 +160,9 @@ namespace Marshmallow.HotChocolate.Core
 
             var bindings = joinGroup.Select(schema =>
             {
-                var propExp = Expression.PropertyOrField(parameter, schema.Property.Name);
-                return Expression.Bind(resultType.GetProperty(schema.SchemaProperty.Name),
-                     Expression.PropertyOrField(propExp, schema.SchemaProperty.Name));
+                var parentPropertyExpression = Expression.PropertyOrField(parameter, schema.Property.Name);
+                var expresion = Expression.PropertyOrField(parentPropertyExpression, schema.SchemaProperty.Name);
+                return Expression.Bind(resultType.GetProperty(schema.SchemaProperty.Name), expresion);
             });
             var newExpression = Expression.MemberInit(Expression.New(resultType), bindings);
             return new GraphExpression()
