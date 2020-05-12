@@ -53,7 +53,7 @@ namespace Marshmallow.Tests
         public string InnerProp { get; set; }
 
         [Join(nameof(AttrData.Child))]
-        public int IntInnerProp { get; set; }
+        public ICollection<AttrChildPropData> IntInnerProp { get; set; }
     }
 
     public class AttrData
@@ -69,7 +69,12 @@ namespace Marshmallow.Tests
     {
         public string InnerProp { get; set; }
 
-        public int IntInnerProp { get; set; }
+        public ICollection<AttrChildPropData> IntInnerProp { get; set; }
+    }
+
+    public class AttrChildPropData
+    {
+        public string Val { get; set; }
     }
 
     public class GetterOnlyClass

@@ -85,7 +85,10 @@ namespace Marshmallow.Tests.Core
                 Child = new
                 {
                     InnerProp = "Val",
-                    IntInnerProp = 1,
+                    IntInnerProp = new []
+                    {
+                        new { Val = "t" }
+                    },
                 }
             };
             var result = new Transformer().Transform<AttrSchema>(testObj);
@@ -94,7 +97,10 @@ namespace Marshmallow.Tests.Core
             {
                 StrProp = "Hello",
                 InnerProp = "Val",
-                IntInnerProp = 1,
+                IntInnerProp = new List<AttrChildPropData>()
+                {
+                    new AttrChildPropData() { Val = "t" }
+                },
             });
         }
 

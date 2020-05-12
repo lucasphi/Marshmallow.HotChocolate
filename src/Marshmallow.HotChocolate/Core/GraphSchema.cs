@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using HotChocolate.Language;
+using System;
+using System.Reflection;
 
 namespace Marshmallow.HotChocolate.Core
 {
@@ -7,6 +9,8 @@ namespace Marshmallow.HotChocolate.Core
         public PropertyInfo Property { get; set; }
 
         public PropertyInfo SchemaProperty { get; set; }
+
+        public FieldNode FieldNode { get; set; }
 
         public GraphSchema(PropertyInfo propertyInfo, PropertyInfo schemaProperty)
         {
