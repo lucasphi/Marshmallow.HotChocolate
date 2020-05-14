@@ -5,7 +5,8 @@
     <PackageIcon>Marshmallow.png</PackageIcon>
     <PackageIconUrl />
     <PackageProjectUrl>https://github.com/lucasphi/Marshmallow.HotChocolate</PackageProjectUrl>
-    <Version>1.3.0</Version>
+    <Version>1.4.0</Version>
+    <Authors>Lucas Phillip</Authors>
   </PropertyGroup>
 
   <ItemGroup>
