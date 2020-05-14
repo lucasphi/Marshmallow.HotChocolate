@@ -4,6 +4,8 @@ using HotChocolate.Language;
 using Marshmallow.HotChocolate;
 using Marshmallow.HotChocolate.Core;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Marshmallow.Tests.Core
@@ -117,7 +119,7 @@ namespace Marshmallow.Tests.Core
         [Fact]
         public void ClassConvertion()
         {
-            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp innerProp intInnerProp { val } prop1 } }");                        
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp innerProp intInnerProp { val } prop1 } }");
 
             var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
 
@@ -128,7 +130,11 @@ namespace Marshmallow.Tests.Core
             var expression = parser.CreateExpression<AttrSchema>();
 
             expression.ToString().Should().Be("a => new {StrProp = a.StrProp, Prop = a.Prop, Child = new {InnerProp = a.Child.InnerProp, IntInnerProp = a.Child.IntInnerProp.Select(b => new {Val = b.Val})}}");
-        }
+
+            List<AttrData> test = AttrData.CreateTestList();
+            var expressionRun = test.Select(expression.Compile());
+            Assert.Equal(7, expressionRun.FirstOrDefault().Child.InnerProp);
+        }        
 
         [Fact]
         public void DoesNotThrowWithNonExitingPropertyInSchema()

@@ -155,8 +155,7 @@ namespace Marshmallow.HotChocolate.Core
 
         private GraphExpression CreateJoinGraphExpression(Expression parameter, IGrouping<string, GraphSchema> joinGroup)
         {
-            var dynamicProperties = joinGroup.Select(f => new DynamicProperty(f.SchemaProperty.Name, typeof(object))).ToList();
-            var resultType = DynamicClassFactory.CreateType(dynamicProperties, false);
+            Type resultType = CreateJoinType(joinGroup);
 
             var bindings = joinGroup.Select(schema =>
             {
@@ -164,7 +163,7 @@ namespace Marshmallow.HotChocolate.Core
                 Expression expression;
                 if (schema.SchemaProperty.PropertyType.IsGenericCollection())
                 {
-                    var graph = CreateGraphExpression(schema.SchemaProperty, schema.FieldNode, parentPropertyExpression, schema.Property.PropertyType, null); 
+                    var graph = CreateGraphExpression(schema.SchemaProperty, schema.FieldNode, parentPropertyExpression, schema.Property.PropertyType, null);
                     expression = graph.Expression;
                 }
                 else
@@ -173,12 +172,28 @@ namespace Marshmallow.HotChocolate.Core
                 }
                 return Expression.Bind(resultType.GetProperty(schema.SchemaProperty.Name), expression);
             });
+
             var newExpression = Expression.MemberInit(Expression.New(resultType), bindings);
             return new GraphExpression()
             {
                 Property = new DynamicProperty(joinGroup.First().Property.Name, typeof(object)),
                 Expression = newExpression
             };
+        }
+
+        private static Type CreateJoinType(IGrouping<string, GraphSchema> joinGroup)
+        {
+            var dynamicProperties = joinGroup.Select(groupItem =>
+            {
+                var propType = groupItem.Property.PropertyType.GetProperty(groupItem.SchemaProperty.Name)?.PropertyType;
+                if (!propType.IsTypePrimitive())
+                {
+                    propType = typeof(object);
+                }
+                return new DynamicProperty(groupItem.SchemaProperty.Name, propType);
+            }).ToList();
+            var resultType = DynamicClassFactory.CreateType(dynamicProperties, false);
+            return resultType;
         }
 
         private PropertyInfo FindPropertyInfo(PropertyLookup propertyLookup, FieldNode currentNode, PropertyInfo schemaInfo)

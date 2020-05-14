@@ -84,7 +84,7 @@ namespace Marshmallow.Tests.Core
                 StrProp = "Hello",
                 Child = new
                 {
-                    InnerProp = "Val",
+                    InnerProp = 1L,
                     IntInnerProp = new []
                     {
                         new { Val = "t" }
@@ -96,7 +96,7 @@ namespace Marshmallow.Tests.Core
             result.Should().BeEquivalentTo(new AttrSchema()
             {
                 StrProp = "Hello",
-                InnerProp = "Val",
+                InnerProp = 1,
                 IntInnerProp = new List<AttrChildPropData>()
                 {
                     new AttrChildPropData() { Val = "t" }
