@@ -50,10 +50,13 @@ namespace Marshmallow.Tests
         public string Prop2 { get; set; }
 
         [Join(nameof(AttrData.Child))]
-        public string InnerProp { get; set; }
+        public long? InnerProp { get; set; }
 
         [Join(nameof(AttrData.Child))]
-        public int IntInnerProp { get; set; }
+        public Guid Guid { get; set; }
+
+        [Join(nameof(AttrData.Child))]
+        public ICollection<AttrChildPropData> IntInnerProp { get; set; }
     }
 
     public class AttrData
@@ -63,13 +66,43 @@ namespace Marshmallow.Tests
         public string Prop { get; set; }
 
         public AttrChildData Child { get; set; }
+
+        public static List<AttrData> CreateTestList()
+        {
+            return new List<AttrData>()
+            {
+                new AttrData()
+                {
+                    StrProp = "aaa",
+                    Child = new AttrChildData()
+                    {
+                        InnerProp = 7,
+                        Guid = Guid.NewGuid(),
+                        IntInnerProp = new List<AttrChildPropData>()
+                        {
+                            new AttrChildPropData()
+                            {
+                                Val = "test"
+                            }
+                        }
+                    }
+                }
+            };
+        }
     }
 
     public class AttrChildData
     {
-        public string InnerProp { get; set; }
+        public long? InnerProp { get; set; }
 
-        public int IntInnerProp { get; set; }
+        public Guid Guid { get; set; }
+
+        public ICollection<AttrChildPropData> IntInnerProp { get; set; }
+    }
+
+    public class AttrChildPropData
+    {
+        public string Val { get; set; }
     }
 
     public class GetterOnlyClass
