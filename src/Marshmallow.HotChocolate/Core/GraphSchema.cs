@@ -12,10 +12,13 @@ namespace Marshmallow.HotChocolate.Core
 
         public FieldNode FieldNode { get; set; }
 
-        public GraphSchema(PropertyInfo propertyInfo, PropertyInfo schemaProperty)
+        public string FoundPropertyName { get; set; }
+
+        public GraphSchema(PropertyInfo propertyInfo, PropertyInfo schemaProperty, FieldNode fieldNode)
         {
             Property = propertyInfo;
             SchemaProperty = schemaProperty;
+            FieldNode = fieldNode;
         }
     }
 }

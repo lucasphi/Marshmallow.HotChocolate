@@ -117,11 +117,11 @@ namespace Marshmallow.HotChocolate.Core
                         if (joinAttr != null)
                         {
                             PropertyInfo propertyInfo = propertyLookup.FindProperty(joinAttr.PropertyName);
-                            joinProperties.Add(new GraphSchema(propertyInfo, schemaInfo) { FieldNode = fieldNode });
+                            joinProperties.Add(new GraphSchema(propertyInfo, schemaInfo, fieldNode));
                         }
                         else
                         {
-                            PropertyInfo propertyInfo = FindPropertyInfo(propertyLookup, currentNode, schemaInfo);
+                            PropertyInfo propertyInfo = FindPropertyInfo(propertyLookup, currentNode.Name.Value, schemaInfo);
                             GraphExpression graphExpression = CreateGraphExpression(propertyInfo, currentNode, parameter, schemaType, parentName);
                             graphExpressions.Add(graphExpression);
                         }
@@ -129,10 +129,10 @@ namespace Marshmallow.HotChocolate.Core
                 }
             }
 
-            var joinGroups = joinProperties.GroupBy(f => f.Property.Name);
-            foreach (var joinGroup in joinGroups)
+            var graphSchemaGroups = joinProperties.GroupBy(f => f.Property.Name);
+            foreach (var schemaGroup in graphSchemaGroups)
             {
-                graphExpressions.Add(CreateJoinGraphExpression(parameter, joinGroup));
+                graphExpressions.Add(CreateJoinGraphExpression(parameter, schemaGroup));
             }
 
             return graphExpressions;
@@ -153,11 +153,11 @@ namespace Marshmallow.HotChocolate.Core
             return currentNodes;
         }
 
-        private GraphExpression CreateJoinGraphExpression(Expression parameter, IGrouping<string, GraphSchema> joinGroup)
+        private GraphExpression CreateJoinGraphExpression(Expression parameter, IEnumerable<GraphSchema> schemaGroup)
         {
-            Type resultType = CreateJoinType(joinGroup);
+            Type resultType = CreateJoinType(schemaGroup);
 
-            var bindings = joinGroup.Select(schema =>
+            var bindings = schemaGroup.Select(schema =>
             {
                 var parentPropertyExpression = Expression.PropertyOrField(parameter, schema.Property.Name);
                 Expression expression;
@@ -168,42 +168,43 @@ namespace Marshmallow.HotChocolate.Core
                 }
                 else
                 {
-                    expression = Expression.PropertyOrField(parentPropertyExpression, schema.SchemaProperty.Name);
+                    expression = Expression.PropertyOrField(parentPropertyExpression, schema.FoundPropertyName);
                 }
-                return Expression.Bind(resultType.GetProperty(schema.SchemaProperty.Name), expression);
+                return Expression.Bind(resultType.GetProperty(schema.FoundPropertyName), expression);
             });
 
             var newExpression = Expression.MemberInit(Expression.New(resultType), bindings);
             return new GraphExpression()
             {
-                Property = new DynamicProperty(joinGroup.First().Property.Name, typeof(object)),
+                Property = new DynamicProperty(schemaGroup.First().Property.Name, typeof(object)),
                 Expression = newExpression
             };
         }
 
-        private static Type CreateJoinType(IGrouping<string, GraphSchema> joinGroup)
+        private Type CreateJoinType(IEnumerable<GraphSchema> schemaGroup)
         {
-            var dynamicProperties = joinGroup.Select(groupItem =>
+            var propertyLookup = new PropertyLookup(schemaGroup.First().Property.PropertyType);
+            var dynamicProperties = schemaGroup.Select(groupItem =>
             {
-                var propType = groupItem.Property.PropertyType.GetProperty(groupItem.SchemaProperty.Name)?.PropertyType;
+                var property = FindPropertyInfo(propertyLookup, groupItem.SchemaProperty.Name, groupItem.SchemaProperty);
+                var propType = property.PropertyType;
+                groupItem.FoundPropertyName = property.Name;
                 if (!propType.IsTypePrimitive())
                 {
                     propType = typeof(object);
                 }
-                return new DynamicProperty(groupItem.SchemaProperty.Name, propType);
+                return new DynamicProperty(property.Name, propType);
             }).ToList();
             var resultType = DynamicClassFactory.CreateType(dynamicProperties, false);
             return resultType;
         }
 
-        private PropertyInfo FindPropertyInfo(PropertyLookup propertyLookup, FieldNode currentNode, PropertyInfo schemaInfo)
+        private PropertyInfo FindPropertyInfo(PropertyLookup propertyLookup, string propertyName, PropertyInfo schemaInfo)
         {
-            var aliasAttr = schemaInfo.GetCustomAttribute<AliasAttribute>();
-            var nodeName = aliasAttr != null ? aliasAttr.Name : currentNode.Name.Value;
-            var propertyInfo = propertyLookup.FindProperty(nodeName);
+            var propertyInfo = propertyLookup.FindProperty(propertyName, schemaInfo);
             if (propertyInfo == null)
             {
-                throw new PropertyNotFoundException(propertyLookup.Type.Name, nodeName);
+                throw new PropertyNotFoundException(propertyLookup.Type.Name, propertyName);
             }
             return propertyInfo;
         }

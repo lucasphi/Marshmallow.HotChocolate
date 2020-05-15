@@ -119,7 +119,7 @@ namespace Marshmallow.Tests.Core
         [Fact]
         public void ClassConvertion()
         {
-            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp innerProp intInnerProp { val } prop1 } }");
+            DocumentNode document = Utf8GraphQLParser.Parse("{ testQuery { strProp innerProp intInnerProp { val } prop } }");
 
             var queryBuilder = QueryRequestBuilder.New().SetQuery(document);
 
