@@ -92,10 +92,10 @@ public class MyClassSchema
 {
    public string Fow { get; set; }
 
-   [Join(nameof(MyClassEntity.InnerClassData)]
+   [Join(nameof(MyClassEntity.InnerClass)]
    public string Foo { get; set; }
    
-   [Join(nameof(MyClassEntity.InnerClassData)]
+   [Join(nameof(MyClassEntity.InnerClass)]
    public string Bar { get; set; }
 }
 ```
@@ -115,3 +115,26 @@ public class InnerClassEntity
    public string Bar { get; set; }
 }
 ```
+
+#### AliasAttribute
+
+The AliasAttribute can be used to decorate the properties of your schema, to allow schemas with different property names than your model.
+
+The following schema
+```
+public class MyClassSchema
+{
+   public string Fow { get; set; }
+
+   [Alias(nameof(MyClassEntity.AnotherName)]
+   public string Foo { get; set; }
+}
+```
+can be used to load the entity below
+```
+public class MyClassEntity
+{
+   public string Fow { get; set; }
+
+   public string AnotherName { get; set; }
+}
